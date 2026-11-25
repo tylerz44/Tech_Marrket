@@ -1,0 +1,850 @@
+@model TechMarket.Models.Order
+@Model.Status
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+
+    ViewData["Title"] = "Chi tiết đơn hàng";
+
+
+
+    bool canCancel = (Model.Status == "Chờ xác nhận"
+
+                   || Model.Status == "Đang giao hàng")
+
+                   && Model.PaymentStatus != "Đã thanh toán";
+
+
+
+    bool canChangePayment = Model.Status == "Chờ xác nhận"
+
+                         && Model.PaymentStatus != "Đã thanh toán"
+
+                         && Model.PaymentStatus != "Đã hủy";
+
+
+
+    var paymentMethodName = Model.PaymentMethod switch
+
+    {
+
+        "COD" => "Thanh toán khi nhận hàng (COD)",
+
+        "DEMOQR" => "Quét mã QR Demo",
+
+        "DEMOBANK" => "Ngân hàng Demo",
+
+        "DEMOCARD" => "Thẻ quốc tế Demo",
+
+        "VNPAYQR" => "QR Demo (đơn cũ)",
+
+        "VNBANK" => "Ngân hàng Demo (đơn cũ)",
+
+        "INTCARD" => "Thẻ Demo (đơn cũ)",
+
+        _ => Model.PaymentMethod
+
+    };
+
+
+
+    var paymentBadgeClass = Model.PaymentStatus switch
+
+    {
+
+        "Đã thanh toán" => "badge-paid",
+
+        "Chờ thanh toán" => "badge-waiting",
+
+        "Thanh toán thất bại" => "badge-failed",
+
+        "Đã hủy" => "badge-cancelled",
+
+        _ => "badge-default"
+
+    };
+
+
+
+    var statusClass = Model.Status switch
+
+    {
+
+        "Chờ xác nhận" => "status-pending",
+
+        "Đã xác nhận" => "status-confirmed",
+
+        "Đang giao hàng" => "status-shipping",
+
+        "Đã giao hàng" => "status-completed",
+
+        "Đã hủy" => "status-cancelled",
+
+        _ => "status-default"
+
+    };
+
+
+
+    var subtotal = Model.OrderDetails.Sum(x => x.TotalPrice);
+}
+
+<style>
+    .order-detail-page {
+        background: #F5F7FB;
+        min-height: 80vh;
+        padding: 38px 0 65px;
+        color: #172338;
+    }
+
+    .order-header {
+        background: linear-gradient(135deg, #0A111D, #18365D);
+        border-radius: 16px;
+        padding: 28px 30px;
+        color: white;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        box-shadow: 0 7px 22px rgba(10,17,29,.10);
+    }
+
+    .order-label {
+        color: #D6B98C;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+
+    .order-title {
+        font-size: 26px;
+        font-weight: 750;
+        margin: 0 0 8px;
+    }
+
+    .order-description {
+        color: #B8C7D9;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .btn-back-order {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255,255,255,.4);
+        border-radius: 9px;
+        padding: 10px 17px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: .2s;
+    }
+
+        .btn-back-order:hover {
+            background: #D6B98C;
+            border-color: #D6B98C;
+            color: #0A111D;
+            transform: translateY(-2px);
+        }
+
+    .detail-card {
+        background: white;
+        border: 1px solid #E8EDF4;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(20,40,70,.035);
+    }
+
+    .detail-card-header {
+        padding: 18px 23px;
+        border-bottom: 1px solid #EDF0F5;
+        color: #132C4F;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+        .detail-card-header i {
+            color: #B18B53;
+            margin-right: 9px;
+            font-size: 17px;
+        }
+
+    .detail-card-body {
+        padding: 23px;
+    }
+
+    .info-item {
+        margin-bottom: 22px;
+    }
+
+    .info-label {
+        color: #8995A6;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        margin-bottom: 7px;
+    }
+
+    .info-value {
+        color: #172338;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .status-badge,
+    .payment-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-pending {
+        background: #FFF3D9;
+        color: #9B6B00;
+    }
+
+    .status-confirmed {
+        background: #E4F3FA;
+        color: #176A91;
+    }
+
+    .status-shipping {
+        background: #E8EEFF;
+        color: #3656A5;
+    }
+
+    .status-completed,
+    .badge-paid {
+        background: #E5F6ED;
+        color: #16834A;
+    }
+
+    .status-cancelled,
+    .badge-cancelled {
+        background: #FDECEC;
+        color: #C0392B;
+    }
+
+    .status-default,
+    .badge-default {
+        background: #EEF1F5;
+        color: #596273;
+    }
+
+    .badge-waiting {
+        background: #FFF3D9;
+        color: #9B6B00;
+    }
+
+    .badge-failed {
+        background: #FDECEC;
+        color: #C0392B;
+    }
+
+    .payment-method i {
+        color: #B18B53;
+        margin-right: 7px;
+    }
+
+    .order-table {
+        margin: 0;
+        min-width: 750px;
+    }
+
+        .order-table thead th {
+            background: #F6F8FB;
+            color: #65748A;
+            font-size: 11px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            padding: 15px 13px;
+            border-bottom: 1px solid #E8EDF4;
+            white-space: nowrap;
+        }
+
+        .order-table tbody td {
+            padding: 16px 13px;
+            color: #344256;
+            font-size: 13px;
+            border-color: #EEF1F5;
+            vertical-align: middle;
+        }
+
+    .product-name {
+        color: #132C4F;
+        font-weight: 750;
+        min-width: 130px;
+    }
+
+    .product-variant {
+        display: inline-block;
+        background: #EEF3FA;
+        color: #18365D;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .product-sku {
+        color: #8290A3;
+        font-size: 12px;
+    }
+
+    .product-total {
+        color: #A77D40 !important;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .order-summary {
+        background: #FBFCFE;
+        padding: 22px 24px;
+        border-top: 1px solid #EDF0F5;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 12px;
+        color: #596579;
+        font-size: 14px;
+    }
+
+        .summary-row.discount {
+            color: #16834A;
+        }
+
+    .summary-total {
+        border-top: 1px solid #E5EAF1;
+        padding-top: 16px;
+        margin-top: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .total-label {
+        color: #132C4F;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .total-amount {
+        color: #A77D40;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .note-box {
+        background: #F7F9FC;
+        border: 1px solid #E8EDF4;
+        border-radius: 9px;
+        padding: 15px;
+        color: #596579;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .action-area {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .btn-pay {
+        background: #16834A;
+        color: white;
+        border: 1px solid #16834A;
+    }
+
+        .btn-pay:hover {
+            background: #116B3C;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .btn-change {
+        background: #132C4F;
+        color: white;
+        border: 1px solid #132C4F;
+    }
+
+        .btn-change:hover {
+            background: #D6B98C;
+            border-color: #D6B98C;
+            color: #0A111D;
+        }
+
+    .btn-cancel-order {
+        background: #FDECEC;
+        color: #C0392B;
+        border: 1px solid #F2CACA;
+    }
+
+        .btn-cancel-order:hover {
+            background: #C0392B;
+            color: white;
+        }
+
+    .payment-select {
+        min-width: 220px;
+        max-width: 100%;
+        border: 1px solid #DCE3ED;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .order-notice {
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        padding: 15px 18px;
+    }
+
+    @@media (max-width: 576px) {
+        .order-detail-page {
+            padding: 22px 0 40px;
+        }
+
+        .order-header {
+            padding: 22px;
+        }
+
+        .order-title {
+            font-size: 21px;
+        }
+
+        .detail-card-body {
+            padding: 17px;
+        }
+
+        .action-area {
+            justify-content: stretch;
+        }
+
+            .action-area > *,
+            .action-area form,
+            .action-area form button {
+                width: 100%;
+            }
+
+        .payment-select {
+            width: 100%;
+        }
+
+        .summary-total {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="order-detail-page">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="order-header">
+            <div>
+                <div class="order-label">TECHMARKET / ORDER DETAIL</div>
+                <h1 class="order-title">Chi tiết đơn hàng #@Model.Id</h1>
+                <p class="order-description">
+                    Kiểm tra thông tin giao hàng và sản phẩm trong đơn hàng của bạn.
+                </p>
+            </div>
+
+            <a asp-controller="OrderHistory"
+               asp-action="Index"
+               class="btn-back-order">
+                <i class="bi bi-arrow-left"></i>
+                Quay lại đơn hàng
+            </a>
+        </div>
+
+        <!-- ALERT -->
+        @if (TempData["Success"] != null)
+
+        {
+            <div class="alert alert-success alert-dismissible fade show order-notice">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+
+        {
+            <div class="alert alert-danger alert-dismissible fade show order-notice">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- ORDER INFORMATION -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <i class="bi bi-receipt"></i>
+                Thông tin đơn hàng
+            </div>
+
+            <div class="detail-card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">Mã đơn hàng</div>
+                            <div class="info-value">#@Model.Id</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">Ngày đặt hàng</div>
+                            <div class="info-value">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-item mb-0">
+                            <div class="info-label">Trạng thái đơn hàng</div>
+                            <span class="status-badge @statusClass">
+                                @Model.Status
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-item mb-0">
+                            <div class="info-label">Phương thức thanh toán</div>
+                            <div class="info-value payment-method">
+                                <i class="bi bi-wallet2"></i>
+                                @paymentMethodName
+                            </div>
+                            <div class="mt-2">
+                                <span class="payment-badge @paymentBadgeClass">
+                                    @Model.PaymentStatus
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYMENT INFORMATION -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <i class="bi bi-credit-card"></i>
+                Thông tin thanh toán
+            </div>
+
+            <div class="detail-card-body">
+                <div class="row">
+                    <div class="col-md-6 info-item">
+                        <div class="info-label">Mã giao dịch</div>
+                        <div class="info-value">
+                            @(string.IsNullOrWhiteSpace(Model.PaymentTransactionNo)
+                                ? "Chưa phát sinh"
+                                : Model.PaymentTransactionNo)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 info-item">
+                        <div class="info-label">Mã tham chiếu</div>
+                        <div class="info-value">
+                            @(string.IsNullOrWhiteSpace(Model.PaymentTransactionRef)
+                                ? "Không có"
+                                : Model.PaymentTransactionRef)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 info-item">
+                        <div class="info-label">Mã giảm giá</div>
+                        <div class="info-value">
+                            @(string.IsNullOrWhiteSpace(Model.DiscountCode)
+                                ? "Không sử dụng"
+                                : Model.DiscountCode)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 info-item">
+                        <div class="info-label">Số tiền được giảm</div>
+                        <div class="info-value text-success">
+                            -@Model.DiscountAmount.ToString("N0") đ
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 info-item mb-0">
+                        <div class="info-label">Thời gian thanh toán</div>
+                        <div class="info-value">
+                            @(Model.PaidAt.HasValue
+                                ? Model.PaidAt.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                                : "Chưa thanh toán")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHIPPING INFORMATION -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <i class="bi bi-geo-alt"></i>
+                Thông tin giao hàng
+            </div>
+
+            <div class="detail-card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">Người nhận</div>
+                            <div class="info-value">
+                                <i class="bi bi-person me-1"></i>
+                                @Model.ReceiverName
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <div class="info-label">Số điện thoại</div>
+                            <div class="info-value">
+                                <i class="bi bi-telephone me-1"></i>
+                                @Model.Phone
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="info-item mb-0">
+                            <div class="info-label">Địa chỉ giao hàng</div>
+                            <div class="info-value">
+                                <i class="bi bi-house-door me-1"></i>
+                                @Model.ShippingAddress
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <i class="bi bi-bag"></i>
+                Sản phẩm trong đơn hàng
+                <span class="text-muted fw-normal ms-2" style="font-size:12px;">
+                    (@Model.OrderDetails.Sum(x => x.Quantity) sản phẩm)
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table order-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>SKU</th>
+                            <th>Kích thước</th>
+                            <th>Màu sắc</th>
+                            <th>Đơn giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+
+                        {
+                            <tr>
+                                <td>
+                                    <div class="product-name">@item.ProductName</div>
+                                </td>
+                                <td>
+                                    <span class="product-sku">@item.SKU</span>
+                                </td>
+                                <td>
+                                    <span class="product-variant">@item.Size</span>
+                                </td>
+                                <td>
+                                    <span class="product-variant">@item.Color</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    @item.UnitPrice.ToString("N0") đ
+                                </td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="product-total">
+                                    @item.TotalPrice.ToString("N0") đ
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TOTAL -->
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Tạm tính</span>
+                    <strong>@subtotal.ToString("N0") đ</strong>
+                </div>
+
+                @if (Model.DiscountAmount > 0)
+
+                {
+                    <div class="summary-row discount">
+                        <span>
+                            <i class="bi bi-tag-fill me-1"></i>
+                            Giảm giá (@Model.DiscountCode)
+                        </span>
+                        <strong>-@Model.DiscountAmount.ToString("N0") đ</strong>
+                    </div>
+                }
+
+                <div class="summary-total">
+                    <span class="total-label">Tổng thanh toán</span>
+                    <span class="total-amount">
+                        @Model.TotalAmount.ToString("N0") đ
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTE -->
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+
+        {
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <i class="bi bi-chat-left-text"></i>
+                    Ghi chú đơn hàng
+                </div>
+
+                <div class="detail-card-body">
+                    <div class="note-box">@Model.Note</div>
+                </div>
+            </div>
+        }
+
+        <!-- ACTIONS -->
+        <div class="action-area">
+
+            @if (Model.PaymentMethod != "COD"
+            && Model.PaymentStatus != "Đã thanh toán"
+            && Model.PaymentStatus != "Đã hủy"
+            && Model.Status != "Đã hủy")
+            {
+                <a asp-controller="DemoPayment"
+                   asp-action="Pay"
+                   asp-route-id="@Model.Id"
+                   class="btn-action btn-pay">
+                    <i class="bi bi-credit-card"></i>
+                    @(Model.PaymentStatus == "Thanh toán thất bại"
+                        ? "Thanh toán lại"
+                        : "Tiếp tục thanh toán")
+                </a>
+            }
+
+            @if (canChangePayment)
+            {
+                <form asp-controller="OrderHistory"
+                      asp-action="ChangePaymentMethod"
+                      method="post"
+                      class="d-flex flex-wrap gap-2 align-items-center">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <select name="paymentMethod" class="form-select payment-select">
+                        <option value="COD"
+                                selected="@(Model.PaymentMethod == "COD" ? "selected" : null)">
+                            Thanh toán khi nhận hàng (COD)
+                        </option>
+
+                        <option value="DEMOQR"
+                                selected="@(Model.PaymentMethod == "DEMOQR" ? "selected" : null)">
+                            QR Demo
+                        </option>
+
+                        <option value="DEMOBANK"
+                                selected="@(Model.PaymentMethod == "DEMOBANK" ? "selected" : null)">
+                            Ngân hàng Demo
+                        </option>
+
+                        <option value="DEMOCARD"
+                                selected="@(Model.PaymentMethod == "DEMOCARD" ? "selected" : null)">
+                            Thẻ quốc tế Demo
+                        </option>
+                    </select>
+
+                    <button type="submit" class="btn-action btn-change">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Đổi phương thức
+                    </button>
+                </form>
+            }
+
+            @if (canCancel)
+            {
+                <form asp-controller="OrderHistory"
+                      asp-action="Cancel"
+                      asp-route-id="@Model.Id"
+                      method="post"
+                      onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="btn-action btn-cancel-order">
+                        <i class="bi bi-x-circle"></i>
+                        Hủy đơn hàng
+                    </button>
+                </form>
+            }
+            else if (Model.Status == "Đã giao hàng" || Model.Status == "Đã hủy")
+            {
+                <div class="alert alert-secondary order-notice mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Đơn hàng này không thể hủy.
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

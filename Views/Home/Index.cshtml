@@ -1,0 +1,996 @@
+﻿@model IEnumerable<TechMarket.Models.Product>
+@using TechMarket.Models
+
+@{
+    ViewData["Title"] = "TechMarket | Modern Fashion";
+
+    var products = Model?.ToList() ?? new List<Product>();
+
+    var categories = ViewBag.Categories as List<Category>
+                     ?? new List<Category>();
+
+    var categoryImages = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Áo thun nam"] = "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900",
+                ["Áo thun nữ"] = "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=900",
+                ["Hoodie"] = "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=900",
+                ["Quần"] = "https://images.unsplash.com/photo-1542272604-787c3835535d?w=900"
+            };
+}
+
+<style>
+    :root {
+        --fresh-bg: #F7F8F3;
+        --fresh-cream: #F0F1E9;
+        --fresh-white: #FFFFFF;
+        --fresh-sage: #A8B9A0;
+        --fresh-sage-light: #E4EADF;
+        --fresh-forest: #29483B;
+        --fresh-dark: #1C3028;
+        --fresh-gold: #C7A875;
+        --fresh-text: #35443B;
+        --fresh-muted: #849087;
+        --fresh-border: #E7EAE3;
+    }
+
+    body {
+        background: var(--fresh-bg);
+        color: var(--fresh-text);
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .fresh-home {
+        overflow: hidden;
+        background: var(--fresh-bg);
+    }
+
+    .fresh-container {
+        width: min(1320px, 91%);
+        margin: auto;
+    }
+
+    /* HERO */
+
+    .fresh-hero {
+        min-height: 690px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        background: #DDE5D9;
+    }
+
+    .fresh-hero-image {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(90deg, rgba(22, 43, 33, .86) 0%, rgba(22, 43, 33, .56) 43%, rgba(22, 43, 33, .04) 100%), url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=2000');
+        background-size: cover;
+        background-position: center 35%;
+        transform: scale(1.02);
+    }
+
+    .fresh-hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 700px;
+        padding: 110px 0;
+        color: white;
+    }
+
+    .fresh-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #DDE8D9;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 27px;
+    }
+
+        .fresh-eyebrow::before {
+            content: "";
+            width: 35px;
+            height: 1px;
+            background: var(--fresh-gold);
+        }
+
+    .fresh-hero h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(52px, 7vw, 92px);
+        font-weight: 400;
+        line-height: 1.02;
+        letter-spacing: -2px;
+        margin: 0 0 25px;
+    }
+
+        .fresh-hero h1 span {
+            color: #D3DCC9;
+            font-style: italic;
+        }
+
+    .fresh-hero-description {
+        max-width: 470px;
+        color: #E3E9E0;
+        font-size: 15px;
+        line-height: 1.9;
+        margin-bottom: 35px;
+    }
+
+    .fresh-primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 16px 25px;
+        background: #F5F5EB;
+        color: var(--fresh-forest);
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        transition: .3s;
+    }
+
+        .fresh-primary-btn:hover {
+            background: var(--fresh-gold);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+    .fresh-hero-note {
+        position: absolute;
+        right: 4.5%;
+        bottom: 35px;
+        color: rgba(255,255,255,.8);
+        font-size: 10px;
+        letter-spacing: 3px;
+        z-index: 2;
+    }
+
+    /* TRUST STRIP */
+
+    .fresh-trust {
+        background: white;
+        padding: 22px 0;
+        border-bottom: 1px solid var(--fresh-border);
+    }
+
+    .fresh-trust-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .fresh-trust-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: var(--fresh-forest);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+        .fresh-trust-item i {
+            color: var(--fresh-gold);
+            font-size: 19px;
+        }
+
+    /* SECTION COMMON */
+
+    .fresh-section {
+        padding: 100px 0;
+    }
+
+    .fresh-section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 25px;
+        margin-bottom: 38px;
+    }
+
+    .fresh-label {
+        color: #9B9D7F;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .fresh-title {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(34px, 4vw, 49px);
+        font-weight: 400;
+        color: var(--fresh-dark);
+        margin: 0;
+        line-height: 1.15;
+    }
+
+        .fresh-title em {
+            color: #8B9D85;
+            font-weight: 400;
+        }
+
+    .fresh-description {
+        color: var(--fresh-muted);
+        font-size: 13px;
+        line-height: 1.8;
+        max-width: 490px;
+        margin: 13px 0 0;
+    }
+
+    .fresh-link {
+        color: var(--fresh-forest);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--fresh-sage);
+        padding-bottom: 8px;
+        white-space: nowrap;
+        transition: .2s;
+    }
+
+        .fresh-link:hover {
+            color: var(--fresh-gold);
+            border-color: var(--fresh-gold);
+        }
+
+    /* CATEGORIES */
+
+    .fresh-categories {
+        padding: 95px 0 105px;
+    }
+
+    .fresh-category-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .fresh-category-card {
+        position: relative;
+        display: block;
+        height: 390px;
+        overflow: hidden;
+        border-radius: 7px;
+        background: var(--fresh-sage-light);
+        text-decoration: none;
+    }
+
+        .fresh-category-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .7s ease;
+        }
+
+        .fresh-category-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .fresh-category-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient( 0deg, rgba(21, 42, 31, .78), rgba(21, 42, 31, .02) 70% );
+        }
+
+    .fresh-category-info {
+        position: absolute;
+        z-index: 2;
+        left: 22px;
+        right: 22px;
+        bottom: 24px;
+        color: white;
+    }
+
+    .fresh-category-number {
+        display: block;
+        color: #E3D3B5;
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+
+    .fresh-category-name {
+        display: block;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        font-weight: 400;
+    }
+
+    .fresh-category-arrow {
+        position: absolute;
+        z-index: 3;
+        right: 20px;
+        bottom: 28px;
+        width: 35px;
+        height: 35px;
+        border: 1px solid rgba(255,255,255,.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: .3s;
+    }
+
+    .fresh-category-card:hover .fresh-category-arrow {
+        background: white;
+        color: var(--fresh-forest);
+        transform: rotate(45deg);
+    }
+
+    /* PRODUCTS */
+
+    .fresh-products {
+        background: #EEF1E9;
+        padding: 100px 0;
+    }
+
+    .fresh-product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 23px;
+    }
+
+    .fresh-product-card {
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: transform .3s, box-shadow .3s;
+    }
+
+        .fresh-product-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 15px 35px rgba(35, 62, 45, .10);
+        }
+
+    .fresh-product-image {
+        position: relative;
+        height: 315px;
+        overflow: hidden;
+        background: #E8EBE4;
+    }
+
+        .fresh-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .6s;
+        }
+
+    .fresh-product-card:hover .fresh-product-image img {
+        transform: scale(1.06);
+    }
+
+    .fresh-product-tag {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        padding: 7px 11px;
+        border-radius: 3px;
+        background: #F5F4EA;
+        color: var(--fresh-forest);
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .fresh-product-info {
+        padding: 19px 17px 21px;
+    }
+
+    .fresh-product-category {
+        color: #9B9D7F;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 9px;
+    }
+
+    .fresh-product-name {
+        display: block;
+        color: var(--fresh-dark);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 19px;
+        text-decoration: none;
+        margin-bottom: 14px;
+        min-height: 24px;
+    }
+
+        .fresh-product-name:hover {
+            color: #8B9D85;
+        }
+
+    .fresh-product-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .fresh-product-price {
+        color: var(--fresh-forest);
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .fresh-product-view {
+        color: var(--fresh-muted);
+        font-size: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: .7px;
+    }
+
+        .fresh-product-view:hover {
+            color: var(--fresh-gold);
+        }
+
+    .fresh-empty {
+        grid-column: 1 / -1;
+        padding: 60px 20px;
+        text-align: center;
+        background: white;
+        border-radius: 7px;
+        color: var(--fresh-muted);
+    }
+
+    /* EDITORIAL BANNER */
+
+    .fresh-editorial {
+        padding: 100px 0;
+    }
+
+    .fresh-editorial-box {
+        min-height: 480px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #DDE5D9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .fresh-editorial-image {
+        min-height: 420px;
+        background-image: url('https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=1200');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .fresh-editorial-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 65px;
+        background: #E9EDE4;
+    }
+
+        .fresh-editorial-content h2 {
+            color: var(--fresh-dark);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(37px, 4vw, 58px);
+            font-weight: 400;
+            line-height: 1.12;
+            margin: 10px 0 20px;
+        }
+
+            .fresh-editorial-content h2 em {
+                color: #83967C;
+            }
+
+        .fresh-editorial-content p {
+            color: #718076;
+            font-size: 13px;
+            line-height: 1.9;
+            margin-bottom: 27px;
+            max-width: 390px;
+        }
+
+    .fresh-dark-btn {
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        gap: 13px;
+        background: var(--fresh-forest);
+        color: white;
+        padding: 15px 22px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        transition: .3s;
+    }
+
+        .fresh-dark-btn:hover {
+            background: var(--fresh-gold);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+    /* BENEFITS */
+
+    .fresh-benefits {
+        padding: 75px 0 90px;
+        background: white;
+        border-top: 1px solid var(--fresh-border);
+    }
+
+    .fresh-benefit-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+
+    .fresh-benefit {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .fresh-benefit-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--fresh-sage-light);
+        color: var(--fresh-forest);
+        font-size: 23px;
+    }
+
+    .fresh-benefit h5 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 21px;
+        font-weight: 400;
+        color: var(--fresh-dark);
+        margin-bottom: 10px;
+    }
+
+    .fresh-benefit p {
+        color: var(--fresh-muted);
+        font-size: 12px;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 992px) {
+        .fresh-category-grid,
+        .fresh-product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .fresh-category-card {
+            height: 340px;
+        }
+
+        .fresh-editorial-content {
+            padding: 40px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .fresh-hero {
+            min-height: 580px;
+        }
+
+        .fresh-hero-content {
+            padding: 80px 0;
+        }
+
+        .fresh-hero h1 {
+            font-size: 53px;
+        }
+
+        .fresh-trust-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .fresh-trust-item {
+            justify-content: flex-start;
+        }
+
+        .fresh-section,
+        .fresh-categories,
+        .fresh-products {
+            padding: 70px 0;
+        }
+
+        .fresh-section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .fresh-category-grid,
+        .fresh-product-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .fresh-category-card {
+            height: 245px;
+        }
+
+        .fresh-category-info {
+            left: 13px;
+            bottom: 17px;
+        }
+
+        .fresh-category-name {
+            font-size: 19px;
+            padding-right: 22px;
+        }
+
+        .fresh-category-arrow {
+            right: 10px;
+            bottom: 15px;
+            width: 28px;
+            height: 28px;
+        }
+
+        .fresh-product-image {
+            height: 205px;
+        }
+
+        .fresh-product-info {
+            padding: 13px 10px 15px;
+        }
+
+        .fresh-product-name {
+            font-size: 16px;
+        }
+
+        .fresh-product-price {
+            font-size: 12px;
+        }
+
+        .fresh-product-view {
+            font-size: 9px;
+        }
+
+        .fresh-editorial {
+            padding: 60px 0;
+        }
+
+        .fresh-editorial-box {
+            grid-template-columns: 1fr;
+        }
+
+        .fresh-editorial-image {
+            min-height: 270px;
+        }
+
+        .fresh-editorial-content {
+            padding: 35px 25px;
+        }
+
+        .fresh-benefit-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+</style>
+
+<div class="fresh-home">
+
+    <!-- HERO -->
+    <section class="fresh-hero">
+        <div class="fresh-hero-image"></div>
+
+        <div class="fresh-container">
+            <div class="fresh-hero-content">
+                <div class="fresh-eyebrow">
+                    A Fresh Perspective On Fashion
+                </div>
+
+                <h1>
+                    Feel Good.<br />
+                    Look <span>Beautiful.</span>
+                </h1>
+
+                <p class="fresh-hero-description">
+                    Khám phá những thiết kế thời trang hiện đại,
+                    tinh tế và đầy cảm hứng. Tìm thấy phong cách
+                    riêng của bạn cùng TechMarket.
+                </p>
+
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   class="fresh-primary-btn">
+                    Khám phá bộ sưu tập
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="fresh-hero-note">
+            MODERN STYLE · EVERYDAY ELEGANCE
+        </div>
+    </section>
+
+    <!-- TRUST -->
+    <section class="fresh-trust">
+        <div class="fresh-container">
+            <div class="fresh-trust-grid">
+                <div class="fresh-trust-item">
+                    <i class="bi bi-gem"></i>
+                    Chất lượng được tuyển chọn
+                </div>
+
+                <div class="fresh-trust-item">
+                    <i class="bi bi-truck"></i>
+                    Giao hàng tiện lợi
+                </div>
+
+                <div class="fresh-trust-item">
+                    <i class="bi bi-shield-check"></i>
+                    Mua sắm an tâm
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="fresh-categories">
+        <div class="fresh-container">
+
+            <div class="fresh-section-heading">
+                <div>
+                    <div class="fresh-label">Explore Your Style</div>
+                    <h2 class="fresh-title">
+                        Find Your <em>Collection.</em>
+                    </h2>
+                    <p class="fresh-description">
+                        Khám phá những danh mục được chọn lọc
+                        để bạn dễ dàng tìm thấy phong cách phù hợp.
+                    </p>
+                </div>
+
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   class="fresh-link">
+                    Xem tất cả
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </div>
+
+            <div class="fresh-category-grid">
+                @if (categories.Any())
+                {
+                    @for (int i = 0; i < categories.Count; i++)
+                    {
+                        var category = categories[i];
+
+                        var image = categoryImages.TryGetValue(
+                        category.Name ?? "",
+                        out var categoryImage)
+                        ? categoryImage
+                        : "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=900";
+
+                        <a asp-controller="Product"
+                           asp-action="Index"
+                           asp-route-categoryId="@category.Id"
+                           class="fresh-category-card">
+
+                            <img src="@image"
+                                 alt="@category.Name"
+                                 loading="lazy" />
+
+                            <div class="fresh-category-info">
+                                <span class="fresh-category-number">
+                                    COLLECTION @((i + 1).ToString("00"))
+                                </span>
+
+                                <span class="fresh-category-name">
+                                    @category.Name
+                                </span>
+                            </div>
+
+                            <span class="fresh-category-arrow">
+                                <i class="bi bi-arrow-up-right"></i>
+                            </span>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="fresh-empty">
+                        Hiện chưa có danh mục sản phẩm.
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="fresh-products">
+        <div class="fresh-container">
+
+            <div class="fresh-section-heading">
+                <div>
+                    <div class="fresh-label">New Season · New Mood</div>
+                    <h2 class="fresh-title">
+                        New <em>Arrivals.</em>
+                    </h2>
+                    <p class="fresh-description">
+                        Những sản phẩm mới nhất dành cho phong cách
+                        hàng ngày của bạn.
+                    </p>
+                </div>
+
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   class="fresh-link">
+                    Xem tất cả sản phẩm
+                    <i class="bi bi-arrow-up-right"></i>
+                </a>
+            </div>
+
+            <div class="fresh-product-grid">
+                @if (products.Any())
+                {
+                    @foreach (var product in products)
+                    {
+                        <div class="fresh-product-card">
+
+                            <div class="fresh-product-image">
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl"
+                                         alt="@product.Name"
+                                         loading="lazy" />
+                                }
+                                else
+                                {
+                                    <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=700"
+                                         alt="@product.Name"
+                                         loading="lazy" />
+                                }
+
+                                <span class="fresh-product-tag">
+                                    New Arrival
+                                </span>
+                            </div>
+
+                            <div class="fresh-product-info">
+                                <div class="fresh-product-category">
+                                    @(product.Category?.Name ?? "Fashion")
+                                </div>
+
+                                <a asp-controller="Product"
+                                   asp-action="Details"
+                                   asp-route-id="@product.Id"
+                                   class="fresh-product-name">
+                                    @product.Name
+                                </a>
+
+                                <div class="fresh-product-bottom">
+                                    <span class="fresh-product-price">
+                                        @product.Price.ToString("N0") ₫
+                                    </span>
+
+                                    <a asp-controller="Product"
+                                       asp-action="Details"
+                                       asp-route-id="@product.Id"
+                                       class="fresh-product-view">
+                                        Chi tiết
+                                        <i class="bi bi-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="fresh-empty">
+                        <i class="bi bi-bag fs-2 d-block mb-3"></i>
+                        Hiện chưa có sản phẩm để hiển thị.
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- EDITORIAL -->
+    <section class="fresh-editorial">
+        <div class="fresh-container">
+            <div class="fresh-editorial-box">
+
+                <div class="fresh-editorial-image"></div>
+
+                <div class="fresh-editorial-content">
+                    <div class="fresh-label">
+                        The Art Of Everyday Style
+                    </div>
+
+                    <h2>
+                        Simple Looks.<br />
+                        <em>Beautiful Living.</em>
+                    </h2>
+
+                    <p>
+                        Phong cách đẹp không cần quá cầu kỳ.
+                        Chỉ cần những lựa chọn phù hợp, chất lượng
+                        và thể hiện được cá tính của chính bạn.
+                    </p>
+
+                    <a asp-controller="Product"
+                       asp-action="Index"
+                       class="fresh-dark-btn">
+                        Khám phá ngay
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="fresh-benefits">
+        <div class="fresh-container">
+            <div class="fresh-benefit-grid">
+
+                <div class="fresh-benefit">
+                    <div class="fresh-benefit-icon">
+                        <i class="bi bi-gem"></i>
+                    </div>
+
+                    <h5>Selected Quality</h5>
+
+                    <p>
+                        Sản phẩm được tuyển chọn,
+                        chú trọng chất lượng và trải nghiệm.
+                    </p>
+                </div>
+
+                <div class="fresh-benefit">
+                    <div class="fresh-benefit-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+
+                    <h5>Convenient Delivery</h5>
+
+                    <p>
+                        Theo dõi đơn hàng dễ dàng,
+                        mua sắm thuận tiện mỗi ngày.
+                    </p>
+                </div>
+
+                <div class="fresh-benefit">
+                    <div class="fresh-benefit-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+                    <h5>Secure Shopping</h5>
+
+                    <p>
+                        Thông tin tài khoản và đơn hàng
+                        được quản lý an toàn.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>

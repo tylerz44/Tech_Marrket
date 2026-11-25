@@ -1,0 +1,13 @@
+﻿@model int
+
+<a class="nav-link position-relative d-inline-flex align-items-center"
+   asp-controller="Cart"
+   asp-action="Index">
+
+    <i class="bi bi-cart3 me-1"></i>
+    Giỏ hàng
+
+    <span class="badge bg-danger rounded-pill ms-1">
+        @Model
+    </span>
+</a>

@@ -1,0 +1,161 @@
+@model TechMarket.ViewModels.DemoPaymentViewModel
+
+@{
+    ViewData["Title"] = "Cổng thanh toán TechMarket";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .demo-page { background:#F8F9FC; min-height:80vh; padding:42px 15px; }
+    .demo-card { max-width:960px; margin:auto; background:#fff; border:1px solid #E8ECF2; border-radius:18px; overflow:hidden; box-shadow:0 12px 35px rgba(10,17,29,.07); }
+    .demo-header { background:linear-gradient(120deg,#0A111D,#18375E); color:#fff; padding:25px 30px; }
+    .demo-body { padding:30px; }
+    .demo-panel { border:1px solid #E8ECF2; border-radius:14px; padding:22px; height:100%; }
+    .demo-line { display:flex; justify-content:space-between; gap:15px; padding:13px 0; border-bottom:1px solid #EEF0F4; font-size:13px; }
+    .demo-line span:first-child { color:#7B8492; }
+    .demo-line strong { color:#172337; text-align:right; overflow-wrap:anywhere; }
+    .demo-amount { color:#132C4F; font-size:28px; font-weight:800; }
+    .demo-qr { width:245px; max-width:100%; height:auto; border:1px solid #E8ECF2; border-radius:12px; padding:10px; background:white; }
+    .demo-bank { background:#F4F6FA; border-radius:12px; padding:28px 15px; }
+    .demo-warning { background:#FFF8E8; border:1px solid #F1E0B8; color:#805D16; border-radius:10px; padding:13px 15px; font-size:12px; line-height:1.6; }
+    .demo-btn { border-radius:9px; padding:13px 16px; font-weight:700; }
+    @@media(max-width:576px){.demo-body{padding:18px}.demo-header{padding:22px}.demo-panel{padding:17px}}
+</style>
+
+<div class="demo-page">
+    <div class="demo-card">
+        <div class="demo-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="fw-bold fs-4">TECHMARKET</div>
+                <div class="small text-white-50">Cổng thanh toán mô phỏng</div>
+            </div>
+            <span class="badge text-bg-warning">DEMO PAYMENT</span>
+        </div>
+
+        <div class="demo-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Xác nhận thanh toán</h2>
+                <p class="text-muted mb-0">Đơn hàng #@Model.OrderId</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="demo-panel">
+                        <h5 class="fw-bold mb-3">Thông tin đơn hàng</h5>
+
+                        <div class="demo-line">
+                            <span>Mã đơn hàng</span>
+                            <strong>#@Model.OrderId</strong>
+                        </div>
+                        <div class="demo-line">
+                            <span>Người nhận</span>
+                            <strong>@Model.ReceiverName</strong>
+                        </div>
+                        <div class="demo-line">
+                            <span>Phương thức</span>
+                            <strong>@Model.PaymentMethodName</strong>
+                        </div>
+                        <div class="demo-line">
+                            <span>Mã tham chiếu</span>
+                            <strong>@Model.TransactionRef</strong>
+                        </div>
+                        <div class="demo-line">
+                            <span>Trạng thái</span>
+                            <strong>@Model.PaymentStatus</strong>
+                        </div>
+
+                        <div class="pt-4">
+                            <div class="text-muted small mb-1">Tổng tiền</div>
+                            <div class="demo-amount">@Model.TotalAmount.ToString("N0") ₫</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="demo-panel text-center">
+                        @if (Model.PaymentMethod == "DEMOQR")
+                        {
+                            <h5 class="fw-bold mb-3">Quét mã QR Demo</h5>
+                            @if (!string.IsNullOrEmpty(Model.QrCodeBase64))
+                            {
+                                <img class="demo-qr"
+                                     src="data:image/png;base64,@Model.QrCodeBase64"
+                                     alt="Mã QR giao dịch TechMarket Demo" />
+                            }
+                            <p class="text-muted small mt-3 mb-0">
+                                QR này chỉ chứa thông tin giao dịch mô phỏng của TechMarket.
+                                Quét mã không chuyển tiền.
+                            </p>
+                        }
+                        else if (Model.PaymentMethod == "DEMOBANK")
+                        {
+                            <h5 class="fw-bold mb-3">Ngân hàng Demo</h5>
+                            <div class="demo-bank">
+                                <i class="bi bi-bank fs-1 text-primary"></i>
+                                <div class="fw-bold mt-2">TECHMARKET DEMO BANK</div>
+                                <div class="small text-muted mt-1">Mô phỏng kết nối ngân hàng</div>
+                            </div>
+                            <p class="text-muted small mt-3">Không kết nối tài khoản ngân hàng thật.</p>
+                        }
+                        else
+                        {
+                            <h5 class="fw-bold mb-3">Thẻ quốc tế Demo</h5>
+                            <div class="demo-bank">
+                                <i class="bi bi-credit-card-2-front fs-1 text-primary"></i>
+                                <div class="fw-bold mt-2">VISA / MASTERCARD DEMO</div>
+                                <div class="small text-muted mt-1">Mô phỏng giao dịch thẻ</div>
+                            </div>
+                            <p class="text-muted small mt-3">Không nhập số thẻ, CVV hoặc thông tin thẻ thật.</p>
+                        }
+
+                        <div class="demo-warning text-start mt-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Đây là cổng thanh toán giả lập phục vụ kiểm thử và trình diễn đồ án.
+                            Không có ngân hàng, ví điện tử hoặc tổ chức thẻ nào xử lý giao dịch này.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6 class="fw-bold mb-3">Mô phỏng kết quả giao dịch</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <form asp-controller="DemoPayment" asp-action="Confirm" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@Model.OrderId" />
+                            <input type="hidden" name="success" value="true" />
+                            <button type="submit" class="btn btn-success w-100 demo-btn">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Giả lập thanh toán thành công
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form asp-controller="DemoPayment" asp-action="Confirm" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderId" value="@Model.OrderId" />
+                            <input type="hidden" name="success" value="false" />
+                            <button type="submit" class="btn btn-outline-danger w-100 demo-btn">
+                                <i class="bi bi-x-circle me-2"></i>
+                                Giả lập thanh toán thất bại
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a asp-controller="OrderHistory" asp-action="Details"
+                   asp-route-id="@Model.OrderId" class="text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại chi tiết đơn hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,678 @@
+﻿@model IEnumerable<TechMarket.Models.Product>
+@using TechMarket.Models
+
+@{
+    ViewData["Title"] = "Bộ sưu tập";
+
+    var products = Model?.ToList() ?? new List<Product>();
+
+    var categories = ViewBag.Categories as IEnumerable<Category>
+                     ?? Enumerable.Empty<Category>();
+
+    string keyword = ViewBag.Keyword?.ToString() ?? "";
+    string selectedCategory = ViewBag.CategoryId?.ToString() ?? "";
+}
+
+<style>
+    :root {
+        --tm-bg: #F7F8F3;
+        --tm-white: #FFFFFF;
+        --tm-cream: #F0F1E9;
+        --tm-sage: #A8B9A0;
+        --tm-sage-light: #E4EADF;
+        --tm-forest: #29483B;
+        --tm-dark: #1C3028;
+        --tm-gold: #C7A875;
+        --tm-text: #35443B;
+        --tm-muted: #849087;
+        --tm-border: #E7EAE3;
+    }
+
+    body {
+        background: var(--tm-bg);
+        color: var(--tm-text);
+    }
+
+    .product-page {
+        padding-bottom: 85px;
+    }
+
+    /* HERO */
+    .product-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 85px 0 80px;
+        color: white;
+        background: linear-gradient(115deg, #1C3028 0%, #29483B 65%, #3D5B49 100%);
+    }
+
+        .product-hero::before,
+        .product-hero::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(199,168,117,.22);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .product-hero::before {
+            width: 480px;
+            height: 480px;
+            right: -130px;
+            top: -260px;
+        }
+
+        .product-hero::after {
+            width: 330px;
+            height: 330px;
+            right: -5px;
+            top: -185px;
+        }
+
+    .product-hero-content {
+        position: relative;
+        z-index: 1;
+        width: 92%;
+        max-width: 1250px;
+        margin: auto;
+    }
+
+    .product-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        color: #D9C39D;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
+
+        .product-eyebrow::before {
+            content: "";
+            width: 35px;
+            height: 1px;
+            background: var(--tm-gold);
+        }
+
+    .product-hero h1 {
+        margin-bottom: 20px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(40px, 6vw, 66px);
+        font-weight: 400;
+        line-height: 1.12;
+    }
+
+    .product-hero p {
+        max-width: 560px;
+        margin: 0;
+        color: #D2DCD3;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+    .product-hero-line {
+        width: 65px;
+        height: 2px;
+        margin-bottom: 25px;
+        background: var(--tm-gold);
+    }
+
+    /* MAIN */
+    .product-container {
+        width: 92%;
+        max-width: 1250px;
+        margin: auto;
+    }
+
+    .product-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 45px 0 24px;
+    }
+
+    .product-count {
+        color: var(--tm-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 25px;
+    }
+
+        .product-count span {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: var(--tm-sage-light);
+            color: var(--tm-forest);
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+    .product-toolbar-note {
+        color: var(--tm-muted);
+        font-size: 12px;
+    }
+
+    /* FILTER */
+    .product-filter {
+        margin-bottom: 38px;
+        padding: 25px;
+        border: 1px solid var(--tm-border);
+        border-radius: 12px;
+        background: var(--tm-white);
+        box-shadow: 0 5px 20px rgba(41,72,59,.035);
+    }
+
+    .filter-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 20px;
+        color: var(--tm-forest);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+        .filter-title i {
+            color: var(--tm-gold);
+            font-size: 17px;
+        }
+
+    .filter-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 15px;
+        border: 1px solid var(--tm-border);
+        border-radius: 7px;
+        outline: none;
+        background: #FCFDFB;
+        color: var(--tm-text);
+        font-size: 13px;
+        transition: .25s;
+    }
+
+        .filter-input:focus {
+            border-color: var(--tm-sage);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(168,185,160,.18);
+        }
+
+        .filter-input::placeholder {
+            color: #A1AAA1;
+        }
+
+    .filter-button {
+        width: 100%;
+        height: 48px;
+        border: 1px solid var(--tm-forest);
+        border-radius: 7px;
+        background: var(--tm-forest);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: .25s;
+    }
+
+        .filter-button:hover {
+            border-color: var(--tm-dark);
+            background: var(--tm-dark);
+            transform: translateY(-1px);
+        }
+
+    .reset-filter {
+        display: inline-block;
+        margin-top: 15px;
+        color: var(--tm-muted);
+        font-size: 12px;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .reset-filter:hover {
+            color: var(--tm-forest);
+        }
+
+    /* PRODUCT GRID */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 28px 20px;
+    }
+
+    .product-card {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--tm-border);
+        border-radius: 10px;
+        background: white;
+        transition: .3s ease;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: #D5DED2;
+            box-shadow: 0 14px 32px rgba(41,72,59,.10);
+        }
+
+    .product-image {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 3 / 4;
+        background: var(--tm-cream);
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .5s ease;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-image-placeholder {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--tm-muted);
+        font-size: 12px;
+    }
+
+        .product-image-placeholder i {
+            color: var(--tm-sage);
+            font-size: 38px;
+        }
+
+    .product-tag {
+        position: absolute;
+        top: 13px;
+        left: 13px;
+        padding: 7px 11px;
+        border-radius: 4px;
+        background: rgba(41,72,59,.94);
+        color: white;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .product-info {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 19px 17px 17px;
+    }
+
+    .product-category {
+        margin-bottom: 9px;
+        color: #829681;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+    }
+
+    .product-name {
+        min-height: 50px;
+        margin-bottom: 12px;
+        color: var(--tm-forest);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .product-price {
+        margin-bottom: 18px;
+        color: var(--tm-forest);
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .product-detail-button {
+        display: block;
+        width: 100%;
+        margin-top: auto;
+        padding: 12px;
+        border: 1px solid var(--tm-forest);
+        border-radius: 6px;
+        background: white;
+        color: var(--tm-forest);
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 1.2px;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: .25s;
+    }
+
+        .product-detail-button:hover {
+            border-color: var(--tm-forest);
+            background: var(--tm-forest);
+            color: white;
+        }
+
+        .product-detail-button i {
+            margin-left: 5px;
+        }
+
+    /* EMPTY */
+    .product-empty {
+        padding: 70px 20px;
+        border: 1px solid var(--tm-border);
+        border-radius: 12px;
+        background: white;
+        text-align: center;
+    }
+
+        .product-empty > i {
+            display: inline-flex;
+            width: 75px;
+            height: 75px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            background: var(--tm-sage-light);
+            color: var(--tm-forest);
+            font-size: 30px;
+        }
+
+        .product-empty h4 {
+            margin-bottom: 10px;
+            color: var(--tm-forest);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 25px;
+            font-weight: 400;
+        }
+
+        .product-empty p {
+            color: var(--tm-muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .product-empty a {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 12px 23px;
+            border-radius: 6px;
+            background: var(--tm-forest);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+            .product-empty a:hover {
+                background: var(--tm-dark);
+            }
+
+    /* RESPONSIVE */
+    @@media (max-width: 992px) {
+        .product-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .product-hero {
+            padding: 60px 0;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .product-info {
+            padding: 14px 12px;
+        }
+
+        .product-name {
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        .product-filter {
+            padding: 18px;
+        }
+
+        .product-count {
+            font-size: 22px;
+        }
+    }
+
+    @@media (max-width: 420px) {
+        .product-container,
+        .product-hero-content {
+            width: 94%;
+        }
+
+        .product-grid {
+            gap: 12px;
+        }
+
+        .product-name {
+            font-size: 15px;
+        }
+
+        .product-price {
+            font-size: 14px;
+        }
+
+        .product-detail-button {
+            padding: 10px 5px;
+            font-size: 9px;
+        }
+    }
+</style>
+
+<div class="product-page">
+
+    <!-- HERO -->
+    <section class="product-hero">
+        <div class="product-hero-content">
+
+            <div class="product-eyebrow">
+                TECHMARKET / COLLECTION
+            </div>
+
+            <div class="product-hero-line"></div>
+
+            <h1>Discover Your<br />Own Style.</h1>
+
+            <p>
+                Khám phá bộ sưu tập sản phẩm mới nhất tại TechMarket.
+                Tìm kiếm phong cách riêng và lựa chọn những sản phẩm phù hợp với bạn.
+            </p>
+
+        </div>
+    </section>
+
+    <div class="product-container">
+
+        <!-- TOOLBAR -->
+        <div class="product-toolbar">
+            <div class="product-count">
+                Tất cả sản phẩm
+                <span>@products.Count sản phẩm</span>
+            </div>
+
+            <div class="product-toolbar-note">
+                <i class="bi bi-stars me-1"></i>
+                Khám phá bộ sưu tập TechMarket
+            </div>
+        </div>
+
+        <!-- FILTER -->
+        <div class="product-filter">
+
+            <div class="filter-title">
+                <i class="bi bi-sliders"></i>
+                Tìm kiếm và lọc sản phẩm
+            </div>
+
+            <form asp-controller="Product"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-lg-6">
+                        <input type="text"
+                               name="keyword"
+                               value="@keyword"
+                               class="filter-input"
+                               placeholder="Nhập tên sản phẩm bạn muốn tìm..." />
+                    </div>
+
+                    <div class="col-lg-4">
+                        <select name="categoryId" class="filter-input">
+                            <option value="">Tất cả danh mục</option>
+
+                            @foreach (var category in categories)
+                            {
+                                if (selectedCategory == category.Id.ToString())
+                                {
+                                    <option value="@category.Id" selected>
+                                        @category.Name
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@category.Id">
+                                        @category.Name
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <button type="submit" class="filter-button">
+                            <i class="bi bi-search me-1"></i>
+                            Tìm kiếm
+                        </button>
+                    </div>
+
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(keyword) ||
+                !string.IsNullOrWhiteSpace(selectedCategory))
+                {
+                    <a asp-controller="Product"
+                       asp-action="Index"
+                       class="reset-filter">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Xóa bộ lọc
+                    </a>
+                }
+
+            </form>
+        </div>
+
+        <!-- PRODUCT LIST -->
+        @if (products.Any())
+        {
+            <div class="product-grid">
+
+                @foreach (var item in products)
+                {
+                    <div class="product-card">
+
+                        <div class="product-image">
+
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl"
+                                     alt="@item.Name"
+                                     loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="product-image-placeholder">
+                                    <i class="bi bi-image"></i>
+                                    Chưa có hình ảnh
+                                </div>
+                            }
+
+                            <span class="product-tag">
+                                TECHMARKET
+                            </span>
+
+                        </div>
+
+                        <div class="product-info">
+
+                            <div class="product-category">
+                                @(item.Category?.Name ?? "Sản phẩm")
+                            </div>
+
+                            <h5 class="product-name">
+                                @item.Name
+                            </h5>
+
+                            <div class="product-price">
+                                @item.Price.ToString("N0") ₫
+                            </div>
+
+                            <a asp-controller="Product"
+                               asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="product-detail-button">
+                                Xem chi tiết
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="product-empty">
+
+                <i class="bi bi-search"></i>
+
+                <h4>Không tìm thấy sản phẩm</h4>
+
+                <p>
+                    Không có sản phẩm phù hợp với thông tin tìm kiếm của bạn.
+                    Vui lòng thử từ khóa hoặc danh mục khác.
+                </p>
+
+                <a asp-controller="Product"
+                   asp-action="Index">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                    Xem tất cả sản phẩm
+                </a>
+
+            </div>
+        }
+
+    </div>
+</div>

@@ -1,0 +1,474 @@
+﻿@model IEnumerable<TechMarket.Models.StoreRegistrationRequest>
+
+@{
+    ViewData["Title"] = "Duyệt cửa hàng";
+
+    var requests = Model?.ToList() ?? new List<TechMarket.Models.StoreRegistrationRequest>();
+
+    int totalRequests = requests.Count;
+    int pendingRequests = requests.Count(x => x.Status == "Pending");
+    int approvedRequests = requests.Count(x => x.Status == "Approved");
+    int rejectedRequests = requests.Count(x => x.Status != "Pending" && x.Status != "Approved");
+}
+
+<style>
+    .approval-page {
+        background: #f5f7fb;
+        min-height: 80vh;
+        padding: 35px 0;
+    }
+
+    .approval-header {
+        background: linear-gradient(135deg, #212529, #495057);
+        color: white;
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.08);
+    }
+
+    .approval-header h2 {
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .stat-card {
+        background: white;
+        border: none;
+        border-radius: 14px;
+        padding: 20px;
+        height: 100%;
+        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .stat-number {
+        font-size: 27px;
+        font-weight: 700;
+        margin-top: 12px;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .approval-table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+    }
+
+    .approval-table {
+        vertical-align: middle;
+        margin-bottom: 0;
+    }
+
+    .approval-table thead th {
+        background: #f1f4f9;
+        color: #495057;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+        padding: 15px 12px;
+        border-bottom: 0;
+    }
+
+    .approval-table tbody td {
+        padding: 15px 12px;
+        color: #495057;
+    }
+
+    .approval-table tbody tr:hover {
+        background: #f8faff;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .action-btn {
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 11px;
+        margin: 2px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 55px 15px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 45px;
+        color: #adb5bd;
+    }
+
+    .table-responsive {
+        border-radius: 10px;
+    }
+</style>
+
+<div class="approval-page">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="approval-header">
+            <div class="d-flex flex-column flex-md-row
+                        justify-content-between align-items-md-center">
+
+                <div>
+                    <h2>
+                        <i class="bi bi-shop-window text-warning me-2"></i>
+                        DUYỆT YÊU CẦU MỞ CỬA HÀNG
+                    </h2>
+
+                    <p class="mb-0 text-white-50">
+                        Quản lý và xét duyệt đăng ký trở thành StoreOwner trên TechMarket.
+                    </p>
+                </div>
+
+                <a asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="btn btn-outline-light mt-3 mt-md-0">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Dashboard
+                </a>
+
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm"
+                 role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+                 role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @TempData["Error"]
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                </button>
+            </div>
+        }
+
+        <!-- STATISTICS -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+
+                    <div class="stat-number">@totalRequests</div>
+                    <div class="stat-label">Tổng yêu cầu</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                    <div class="stat-number">@pendingRequests</div>
+                    <div class="stat-label">Chờ duyệt</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+
+                    <div class="stat-number">@approvedRequests</div>
+                    <div class="stat-label">Đã duyệt</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+
+                    <div class="stat-number">@rejectedRequests</div>
+                    <div class="stat-label">Đã từ chối</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="approval-table-card">
+
+            <div class="d-flex flex-column flex-md-row
+                        justify-content-between align-items-md-center mb-4">
+
+                <div>
+                    <h5 class="fw-bold mb-1">
+                        <i class="bi bi-list-ul text-primary me-2"></i>
+                        Danh sách đăng ký cửa hàng
+                    </h5>
+
+                    <small class="text-muted">
+                        Tổng cộng @totalRequests yêu cầu đăng ký
+                    </small>
+                </div>
+
+                <div class="mt-3 mt-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input type="text"
+                               id="searchInput"
+                               class="form-control"
+                               placeholder="Tìm tên cửa hàng..." />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table approval-table" id="approvalTable">
+
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên cửa hàng</th>
+                            <th>Địa chỉ</th>
+                            <th>Số điện thoại</th>
+                            <th>Ngày gửi</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (requests.Any())
+                        {
+                            @foreach (var item in requests)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        #@item.Id
+                                    </td>
+
+                                    <td class="fw-semibold text-dark">
+                                        <i class="bi bi-shop text-primary me-1"></i>
+                                        @item.StoreName
+                                    </td>
+
+                                    <td>
+                                        @item.Address
+                                    </td>
+
+                                    <td>
+                                        <i class="bi bi-telephone text-muted me-1"></i>
+                                        @item.Phone
+                                    </td>
+
+                                    <td>
+                                        @item.CreatedAt.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <span class="status-badge status-pending">
+                                                <i class="bi bi-clock me-1"></i>
+                                                Chờ duyệt
+                                            </span>
+                                        }
+                                        else if (item.Status == "Approved")
+                                        {
+                                            <span class="status-badge status-approved">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Đã duyệt
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge status-rejected">
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Đã từ chối
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <div class="d-flex flex-wrap justify-content-center">
+
+                                                <form action="/Admin/StoreApproval/Approve"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@item.Id" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-success action-btn"
+                                                            onclick="return confirm('Bạn chắc chắn muốn duyệt cửa hàng này?')">
+
+                                                        <i class="bi bi-check-lg"></i>
+                                                        Duyệt
+                                                    </button>
+                                                </form>
+
+                                                <form action="/Admin/StoreApproval/Reject"
+                                                      method="post"
+                                                      class="d-inline">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@item.Id" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-outline-danger action-btn"
+                                                            onclick="return confirm('Bạn chắc chắn muốn từ chối yêu cầu này?')">
+
+                                                        <i class="bi bi-x-lg"></i>
+                                                        Từ chối
+                                                    </button>
+                                                </form>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                Không có thao tác
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="bi bi-inbox"></i>
+
+                                        <h5 class="mt-3 fw-bold">
+                                            Chưa có yêu cầu đăng ký
+                                        </h5>
+
+                                        <p class="mb-0">
+                                            Các yêu cầu mở cửa hàng sẽ hiển thị tại đây.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+                <div id="noSearchResult"
+                     class="empty-state d-none">
+                    <i class="bi bi-search"></i>
+                    <h5 class="mt-3 fw-bold">Không tìm thấy kết quả</h5>
+                    <p class="mb-0">Thử tìm kiếm bằng tên cửa hàng khác.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("searchInput").addEventListener("input", function () {
+            const keyword = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#approvalTable tbody tr");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const storeName = row.cells[1]?.innerText.toLowerCase() || "";
+                const isMatch = storeName.includes(keyword);
+
+                row.style.display = isMatch ? "" : "none";
+
+                if (isMatch) {
+                    visibleCount++;
+                }
+            });
+
+            const noResult = document.getElementById("noSearchResult");
+            const hasData = rows.length > 0 && rows[0].cells.length > 1;
+
+            if (hasData && visibleCount === 0) {
+                noResult.classList.remove("d-none");
+            } else {
+                noResult.classList.add("d-none");
+            }
+        });
+    </script>
+}

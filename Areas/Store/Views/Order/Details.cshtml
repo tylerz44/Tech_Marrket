@@ -1,0 +1,884 @@
+﻿@model TechMarket.Models.Order
+
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chi tiết đơn hàng";
+
+    var details = Model.OrderDetails ?? new List<TechMarket.Models.OrderDetail>();
+    var storeOrder = ViewBag.StoreOrder as TechMarket.Models.StoreOrder;
+
+    string currentStatus = storeOrder?.Status ?? "Chưa xác định";
+
+    decimal storeTotal = details.Sum(d => d.TotalPrice);
+    int totalQuantity = details.Sum(d => d.Quantity);
+
+    bool canCancel = currentStatus == "Chờ xác nhận"
+                  || currentStatus == "Đang giao hàng";
+
+    string statusClass = currentStatus switch
+    {
+        "Chờ xác nhận" => "tm-status-pending",
+        "Đang giao hàng" => "tm-status-shipping",
+        "Đã giao hàng" => "tm-status-completed",
+        "Đã hủy" => "tm-status-cancelled",
+        _ => "tm-status-unknown"
+    };
+
+    string statusIcon = currentStatus switch
+    {
+        "Chờ xác nhận" => "bi-clock-history",
+        "Đang giao hàng" => "bi-truck",
+        "Đã giao hàng" => "bi-check-circle",
+        "Đã hủy" => "bi-x-circle",
+        _ => "bi-question-circle"
+    };
+}
+
+<style>
+    .tm-order-detail {
+        --tm-navy: #0A111D;
+        --tm-blue: #132C4F;
+        --tm-muted: #7B96B4;
+        --tm-gold: #D6B98C;
+        --tm-bg: #F8F9FC;
+        --tm-border: #E6EAF0;
+        background: var(--tm-bg);
+        min-height: 80vh;
+        padding: 30px 0 50px;
+    }
+
+        .tm-order-detail .tm-hero {
+            background: linear-gradient(125deg, #0A111D, #18365C);
+            color: #fff;
+            border-radius: 18px;
+            padding: 28px 30px;
+            margin-bottom: 22px;
+            box-shadow: 0 12px 30px rgba(10, 17, 29, .12);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .tm-order-detail .tm-hero::after {
+                content: "";
+                position: absolute;
+                width: 240px;
+                height: 240px;
+                border: 1px solid rgba(214, 185, 140, .2);
+                border-radius: 50%;
+                right: -75px;
+                top: -120px;
+                pointer-events: none;
+            }
+
+        .tm-order-detail .tm-eyebrow {
+            color: var(--tm-gold);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 11px;
+        }
+
+        .tm-order-detail .tm-hero h2 {
+            font-size: clamp(22px, 3vw, 29px);
+            font-weight: 750;
+            margin-bottom: 9px;
+        }
+
+        .tm-order-detail .tm-hero p {
+            color: #C1CDDB;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .tm-order-detail .tm-hero-actions {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tm-order-detail .tm-hero .btn {
+            border-radius: 9px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .tm-order-detail .tm-order-code {
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            padding: 17px 20px;
+            margin-bottom: 22px;
+        }
+
+        .tm-order-detail .tm-order-code-label {
+            color: #AFC0D3;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .tm-order-detail .tm-order-code-number {
+            color: #fff;
+            font-size: 23px;
+            font-weight: 750;
+            margin-bottom: 5px;
+        }
+
+        .tm-order-detail .tm-order-code-date {
+            color: #C1CDDB;
+            font-size: 12px;
+        }
+
+        .tm-order-detail .tm-card {
+            background: #fff;
+            border: 1px solid var(--tm-border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(10, 17, 29, .025);
+        }
+
+        .tm-order-detail .tm-card-header {
+            padding: 18px 21px;
+            border-bottom: 1px solid var(--tm-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--tm-navy);
+            font-size: 15px;
+            font-weight: 750;
+        }
+
+            .tm-order-detail .tm-card-header > i {
+                color: var(--tm-muted);
+                font-size: 19px;
+            }
+
+        .tm-order-detail .tm-card-body {
+            padding: 21px;
+        }
+
+        .tm-order-detail .tm-info-item {
+            margin-bottom: 20px;
+        }
+
+            .tm-order-detail .tm-info-item:last-child {
+                margin-bottom: 0;
+            }
+
+        .tm-order-detail .tm-info-label {
+            color: #8290A2;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .tm-order-detail .tm-info-value {
+            color: #26364A;
+            font-size: 13px;
+            font-weight: 650;
+            overflow-wrap: anywhere;
+        }
+
+        .tm-order-detail .tm-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .tm-order-detail .tm-status-pending {
+            background: #F8F0DF;
+            color: #98703A;
+        }
+
+        .tm-order-detail .tm-status-shipping {
+            background: #EEF2F8;
+            color: #385A82;
+        }
+
+        .tm-order-detail .tm-status-completed {
+            background: #EAF5EF;
+            color: #26734D;
+        }
+
+        .tm-order-detail .tm-status-cancelled {
+            background: #F9ECEA;
+            color: #A6534B;
+        }
+
+        .tm-order-detail .tm-status-unknown {
+            background: #F0F2F5;
+            color: #788493;
+        }
+
+        .tm-order-detail .tm-note {
+            background: #FBF8F1;
+            border: 1px solid #EDE2CE;
+            border-radius: 10px;
+            padding: 15px;
+            color: #806744;
+            font-size: 13px;
+        }
+
+        .tm-order-detail .tm-note-title {
+            font-weight: 750;
+            margin-bottom: 7px;
+        }
+
+        .tm-order-detail .tm-select {
+            border: 1px solid var(--tm-border);
+            border-radius: 9px;
+            padding: 11px 13px;
+            width: 100%;
+            font-size: 13px;
+            color: #344256;
+            outline: none;
+        }
+
+            .tm-order-detail .tm-select:focus {
+                border-color: var(--tm-muted);
+                box-shadow: 0 0 0 3px rgba(123, 150, 180, .12);
+            }
+
+        .tm-order-detail .tm-btn-update {
+            background: var(--tm-blue);
+            color: #fff;
+            border: 1px solid var(--tm-blue);
+            border-radius: 9px;
+            padding: 11px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+            .tm-order-detail .tm-btn-update:hover {
+                background: var(--tm-navy);
+                border-color: var(--tm-navy);
+                color: #fff;
+            }
+
+        .tm-order-detail .tm-btn-cancel {
+            background: #fff;
+            color: #A6534B;
+            border: 1px solid #D9AAA5;
+            border-radius: 9px;
+            padding: 11px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+            .tm-order-detail .tm-btn-cancel:hover {
+                background: #A6534B;
+                border-color: #A6534B;
+                color: #fff;
+            }
+
+        .tm-order-detail .tm-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 13px;
+            color: #78879A;
+            font-size: 13px;
+        }
+
+            .tm-order-detail .tm-summary-row strong {
+                color: #26364A;
+                font-weight: 750;
+            }
+
+        .tm-order-detail .tm-summary-total {
+            border-top: 1px solid var(--tm-border);
+            padding-top: 16px;
+            margin-top: 15px;
+            margin-bottom: 0;
+            color: var(--tm-navy);
+            font-weight: 750;
+        }
+
+            .tm-order-detail .tm-summary-total strong {
+                color: #A45B43;
+                font-size: 20px;
+            }
+
+        .tm-order-detail .tm-product-table {
+            width: 100%;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+            .tm-order-detail .tm-product-table thead th {
+                background: #F5F7FA;
+                color: #78879A;
+                font-size: 11px;
+                font-weight: 750;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                padding: 15px;
+                border-bottom: 1px solid var(--tm-border);
+            }
+
+            .tm-order-detail .tm-product-table tbody td {
+                color: #344256;
+                font-size: 13px;
+                padding: 16px 15px;
+                vertical-align: middle;
+                border-bottom: 1px solid #EFF1F5;
+            }
+
+            .tm-order-detail .tm-product-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+            .tm-order-detail .tm-product-table tbody tr:hover {
+                background: #FAFBFD;
+            }
+
+        .tm-order-detail .tm-product-name {
+            color: var(--tm-navy);
+            font-weight: 750;
+        }
+
+        .tm-order-detail .tm-product-meta {
+            color: #8290A2;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .tm-order-detail .tm-sku {
+            display: inline-block;
+            background: #EEF2F7;
+            color: var(--tm-blue);
+            border: 1px solid #E0E7EF;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .tm-order-detail .tm-size {
+            display: inline-flex;
+            justify-content: center;
+            min-width: 34px;
+            padding: 5px 9px;
+            background: #F7F4EE;
+            border: 1px solid #E9DDCA;
+            color: #806744;
+            border-radius: 6px;
+            font-weight: 750;
+        }
+
+        .tm-order-detail .tm-unit-price {
+            color: #526174;
+            font-weight: 650;
+        }
+
+        .tm-order-detail .tm-line-total {
+            color: #A45B43;
+            font-weight: 750;
+        }
+
+        .tm-order-detail .tm-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8290A2;
+            font-size: 13px;
+        }
+
+            .tm-order-detail .tm-empty i {
+                display: block;
+                font-size: 40px;
+                color: #C5CED9;
+                margin-bottom: 12px;
+            }
+
+            .tm-order-detail .tm-empty strong {
+                color: var(--tm-navy);
+            }
+
+        .tm-order-detail .alert {
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+    @@media (max-width: 768px) {
+        .tm-order-detail {
+            padding-top: 18px;
+        }
+
+            .tm-order-detail .tm-hero {
+                padding: 22px;
+            }
+
+            .tm-order-detail .tm-hero-actions {
+                margin-top: 18px;
+            }
+
+            .tm-order-detail .tm-order-code-number {
+                font-size: 20px;
+            }
+
+            .tm-order-detail .tm-card-body {
+                padding: 17px;
+            }
+    }
+</style>
+
+<div class="tm-order-detail">
+    <div class="container-fluid px-lg-4">
+
+        <!-- HEADER -->
+        <div class="tm-hero">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="tm-eyebrow">
+                        <i class="bi bi-shop me-1"></i>
+                        STORE MANAGEMENT
+                    </div>
+
+                    <h2>
+                        <i class="bi bi-receipt me-2"></i>
+                        Chi tiết đơn hàng
+                    </h2>
+
+                    <p>
+                        Xem thông tin khách hàng, sản phẩm và quản lý trạng thái đơn hàng.
+                    </p>
+                </div>
+
+                <div class="col-lg-4 text-lg-end tm-hero-actions">
+                    <a asp-area="Store"
+                       asp-controller="Order"
+                       asp-action="Index"
+                       class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- THÔNG BÁO -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["Error"]
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- THÔNG TIN MÃ ĐƠN -->
+        <div class="tm-order-code">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <div class="tm-order-code-label">MÃ ĐƠN HÀNG</div>
+                    <div class="tm-order-code-number">
+                        #TM-@Model.Id.ToString("D5")
+                    </div>
+                    <div class="tm-order-code-date">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        Đặt ngày @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                    <div class="tm-order-code-label">TRẠNG THÁI CỬA HÀNG</div>
+                    <span class="tm-status @statusClass">
+                        <i class="bi @statusIcon"></i>
+                        @currentStatus
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <!-- CỘT TRÁI -->
+            <div class="col-lg-7">
+
+                <!-- THÔNG TIN KHÁCH HÀNG -->
+                <div class="tm-card">
+                    <div class="tm-card-header">
+                        <i class="bi bi-person-circle"></i>
+                        Thông tin khách hàng
+                    </div>
+
+                    <div class="tm-card-body">
+                        <div class="row">
+
+                            <div class="col-md-6 tm-info-item">
+                                <div class="tm-info-label">Người nhận</div>
+                                <div class="tm-info-value">
+                                    @(string.IsNullOrWhiteSpace(Model.ReceiverName)
+                                        ? "Chưa có thông tin"
+                                        : Model.ReceiverName)
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 tm-info-item">
+                                <div class="tm-info-label">Số điện thoại</div>
+                                <div class="tm-info-value">
+                                    @(string.IsNullOrWhiteSpace(Model.Phone)
+                                        ? "Chưa có thông tin"
+                                        : Model.Phone)
+                                </div>
+                            </div>
+
+                            <div class="col-12 tm-info-item">
+                                <div class="tm-info-label">Địa chỉ giao hàng</div>
+                                <div class="tm-info-value">
+                                    @(string.IsNullOrWhiteSpace(Model.ShippingAddress)
+                                        ? "Chưa có thông tin"
+                                        : Model.ShippingAddress)
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 tm-info-item">
+                                <div class="tm-info-label">Phương thức thanh toán</div>
+                                <div class="tm-info-value">
+                                    @if (Model.PaymentMethod == "COD")
+                                    {
+                                        <span>
+                                            <i class="bi bi-cash-coin me-1"
+                                               style="color:#26734D;"></i>
+                                            Thanh toán khi nhận hàng
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @(string.IsNullOrWhiteSpace(Model.PaymentMethod)
+                                            ? "Chưa xác định"
+                                            : Model.PaymentMethod)
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 tm-info-item">
+                                <div class="tm-info-label">Mã đơn hàng</div>
+                                <div class="tm-info-value">
+                                    #TM-@Model.Id.ToString("D5")
+                                </div>
+                            </div>
+
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Note))
+                        {
+                            <div class="tm-note mt-2">
+                                <div class="tm-note-title">
+                                    <i class="bi bi-chat-left-text me-2"></i>
+                                    Ghi chú của khách hàng
+                                </div>
+                                <div>@Model.Note</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- DANH SÁCH SẢN PHẨM -->
+                <div class="tm-card">
+                    <div class="tm-card-header">
+                        <i class="bi bi-bag-check"></i>
+                        Sản phẩm thuộc cửa hàng
+                        <span class="badge bg-light text-dark border ms-auto">
+                            @details.Count loại
+                        </span>
+                    </div>
+
+                    @if (details.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table tm-product-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>SKU</th>
+                                        <th>Size</th>
+                                        <th>Màu</th>
+                                        <th>Đơn giá</th>
+                                        <th>SL</th>
+                                        <th>Thành tiền</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var item in details)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="tm-product-name">
+                                                    @item.ProductName
+                                                </div>
+                                                <div class="tm-product-meta">
+                                                    Mã sản phẩm: @item.ProductId
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <span class="tm-sku">@item.SKU</span>
+                                            </td>
+
+                                            <td>
+                                                <span class="tm-size">@item.Size</span>
+                                            </td>
+
+                                            <td>@item.Color</td>
+
+                                            <td>
+                                                <span class="tm-unit-price">
+                                                    @item.UnitPrice.ToString("N0") đ
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <strong>@item.Quantity</strong>
+                                            </td>
+
+                                            <td>
+                                                <span class="tm-line-total">
+                                                    @item.TotalPrice.ToString("N0") đ
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tm-empty">
+                            <i class="bi bi-inbox"></i>
+                            <strong>Không có sản phẩm trong đơn hàng</strong>
+                        </div>
+                    }
+
+                    @if (details.Any())
+                    {
+                        <div class="tm-card-body">
+                            <div class="row justify-content-end">
+                                <div class="col-md-7 col-lg-6">
+
+                                    <div class="tm-summary-row">
+                                        <span>Số loại sản phẩm</span>
+                                        <strong>@details.Count</strong>
+                                    </div>
+
+                                    <div class="tm-summary-row">
+                                        <span>Tổng số lượng</span>
+                                        <strong>@totalQuantity</strong>
+                                    </div>
+
+                                    <div class="tm-summary-row tm-summary-total">
+                                        <span>Tổng tiền cửa hàng</span>
+                                        <strong>@storeTotal.ToString("N0") đ</strong>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+            <!-- CỘT PHẢI -->
+            <div class="col-lg-5">
+
+                <!-- QUẢN LÝ TRẠNG THÁI -->
+                <div class="tm-card">
+                    <div class="tm-card-header">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Quản lý trạng thái
+                    </div>
+
+                    <div class="tm-card-body">
+
+                        @if (storeOrder != null)
+                        {
+                            <div class="mb-3">
+                                <div class="tm-info-label">Trạng thái hiện tại</div>
+                                <span class="tm-status @statusClass">
+                                    <i class="bi @statusIcon"></i>
+                                    @currentStatus
+                                </span>
+                            </div>
+
+                            @if (canCancel)
+                            {
+                                <!-- CẬP NHẬT TRẠNG THÁI -->
+                                <form asp-area="Store"
+                                      asp-controller="Order"
+                                      asp-action="UpdateStatus"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@storeOrder.Id" />
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small">
+                                            Chọn trạng thái mới
+                                        </label>
+
+                                        <select name="status"
+                                                class="tm-select"
+                                                required>
+                                            @if (currentStatus == "Chờ xác nhận")
+                                            {
+                                                <option value="Chờ xác nhận" selected>
+                                                    Chờ xác nhận
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Chờ xác nhận">
+                                                    Chờ xác nhận
+                                                </option>
+                                            }
+
+                                            @if (currentStatus == "Đang giao hàng")
+                                            {
+                                                <option value="Đang giao hàng" selected>
+                                                    Đang giao hàng
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Đang giao hàng">
+                                                    Đang giao hàng
+                                                </option>
+                                            }
+
+                                            <option value="Đã giao hàng">
+                                                Đã giao hàng
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="tm-btn-update w-100">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        Cập nhật trạng thái
+                                    </button>
+                                </form>
+
+                                <hr class="my-4" />
+
+                                <!-- HỦY ĐƠN -->
+                                <form asp-area="Store"
+                                      asp-controller="Order"
+                                      asp-action="Cancel"
+                                      asp-route-id="@Model.Id"
+                                      method="post"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn hủy phần đơn hàng thuộc cửa hàng của mình không? Số lượng sản phẩm sẽ được hoàn lại kho.');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit" class="tm-btn-cancel w-100">
+                                        <i class="bi bi-x-circle me-2"></i>
+                                        Hủy phần đơn hàng của cửa hàng
+                                    </button>
+                                </form>
+                            }
+                            else if (currentStatus == "Đã giao hàng")
+                            {
+                                <div class="alert alert-success mb-0">
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                    Đơn hàng đã giao thành công. Không thể hủy hoặc cập nhật trạng thái.
+                                </div>
+                            }
+                            else if (currentStatus == "Đã hủy")
+                            {
+                                <div class="alert alert-danger mb-0">
+                                    <i class="bi bi-x-circle-fill me-2"></i>
+                                    Phần đơn hàng của cửa hàng đã được hủy.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary mb-0">
+                                    Không thể cập nhật trạng thái đơn hàng này.
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mb-0">
+                                Không tìm thấy thông tin liên kết đơn hàng với cửa hàng.
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+                <!-- TỔNG QUAN -->
+                <div class="tm-card">
+                    <div class="tm-card-header">
+                        <i class="bi bi-clipboard-data"></i>
+                        Tổng quan đơn hàng
+                    </div>
+
+                    <div class="tm-card-body">
+
+                        <div class="tm-summary-row">
+                            <span>Mã đơn hàng</span>
+                            <strong>#TM-@Model.Id.ToString("D5")</strong>
+                        </div>
+
+                        <div class="tm-summary-row">
+                            <span>Số loại sản phẩm</span>
+                            <strong>@details.Count</strong>
+                        </div>
+
+                        <div class="tm-summary-row">
+                            <span>Tổng số lượng</span>
+                            <strong>@totalQuantity</strong>
+                        </div>
+
+                        <div class="tm-summary-row">
+                            <span>Thanh toán</span>
+                            <strong>@Model.PaymentMethod</strong>
+                        </div>
+
+                        <div class="tm-summary-row tm-summary-total">
+                            <span>Tổng tiền cửa hàng</span>
+                            <strong>@storeTotal.ToString("N0") đ</strong>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

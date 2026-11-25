@@ -1,0 +1,393 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    .tm-admin-dashboard {
+        --navy: #0A111D;
+        --blue: #132C4F;
+        --gold: #D6B98C;
+        --muted: #7B96B4;
+        background: #F8F9FC;
+        min-height: 80vh;
+        padding: 42px 0 65px;
+    }
+
+    .tm-admin-hero {
+        background: linear-gradient(120deg, #0A111D, #132C4F);
+        color: white;
+        padding: 38px;
+        border-radius: 16px;
+        margin-bottom: 35px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .tm-admin-hero::after {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border: 1px solid rgba(214,185,140,.25);
+            border-radius: 50%;
+            right: -65px;
+            top: -95px;
+            box-shadow: 0 0 0 25px rgba(214,185,140,.04), 0 0 0 50px rgba(214,185,140,.03);
+        }
+
+    .tm-admin-eyebrow {
+        color: var(--gold);
+        font-size: 11px;
+        letter-spacing: 3px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+
+    .tm-admin-hero h2 {
+        font-size: clamp(23px, 3vw, 32px);
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .tm-admin-hero p {
+        color: #C5D0DE;
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 0;
+    }
+
+    .tm-admin-home {
+        display: inline-block;
+        color: var(--gold);
+        border: 1px solid rgba(214,185,140,.6);
+        padding: 10px 17px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: .2s;
+        position: relative;
+        z-index: 1;
+    }
+
+        .tm-admin-home:hover {
+            background: var(--gold);
+            color: var(--navy);
+        }
+
+    .tm-admin-section-title {
+        color: var(--navy);
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+        .tm-admin-section-title i {
+            color: var(--gold);
+        }
+
+    .tm-admin-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: white;
+        border: 1px solid #E9ECF2;
+        border-radius: 12px;
+        padding: 25px;
+        text-decoration: none;
+        transition: .25s ease;
+    }
+
+        .tm-admin-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 12px 28px rgba(10,17,29,.09);
+        }
+
+    .tm-admin-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 11px;
+        background: #EEF2F8;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .tm-admin-card h5 {
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 750;
+        margin-bottom: 10px;
+    }
+
+    .tm-admin-card p {
+        color: #788394;
+        font-size: 13px;
+        line-height: 1.8;
+        flex-grow: 1;
+        margin-bottom: 20px;
+    }
+
+    .tm-admin-card-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 700;
+        border-top: 1px solid #EDF0F4;
+        padding-top: 14px;
+    }
+
+    .tm-admin-note {
+        background: white;
+        border: 1px solid #E9ECF2;
+        border-radius: 12px;
+        padding: 22px 25px;
+        margin-top: 35px;
+    }
+
+    .tm-admin-note-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: #EEF2F8;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .tm-admin-note h6 {
+        color: var(--navy);
+        font-weight: 750;
+        margin-bottom: 5px;
+    }
+
+    .tm-admin-note p {
+        color: #788394;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    @@media (max-width: 576px) {
+        .tm-admin-dashboard {
+            padding: 25px 0 45px;
+        }
+
+        .tm-admin-hero {
+            padding: 25px 20px;
+        }
+
+        .tm-admin-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="tm-admin-dashboard">
+    <div class="container">
+
+        <!-- HEADER -->
+        <section class="tm-admin-hero">
+            <div class="row align-items-center position-relative">
+                <div class="col-lg-9">
+                    <div class="tm-admin-eyebrow">
+                        Administration
+                    </div>
+
+                    <h2>
+                        TRUNG TÂM QUẢN TRỊ TECHMARKET
+                    </h2>
+
+                    <p>
+                        Chào mừng bạn đến với hệ thống quản trị TechMarket.
+                        Tại đây, bạn có thể quản lý người dùng, cửa hàng,
+                        sản phẩm và các hoạt động trên toàn hệ thống.
+                    </p>
+                </div>
+
+                <div class="col-lg-3 text-lg-end mt-4 mt-lg-0">
+                    <a asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="tm-admin-home">
+                        <i class="bi bi-house-door me-2"></i>
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- MANAGEMENT -->
+        <h4 class="tm-admin-section-title">
+            <i class="bi bi-grid-fill me-2"></i>
+            Quản lý hệ thống
+        </h4>
+
+        <div class="row g-4">
+
+            <!-- USERS -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin"
+                   asp-controller="User"
+                   asp-action="Index"
+                   class="tm-admin-card">
+
+                    <div class="tm-admin-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+                    <h5>Quản lý người dùng</h5>
+
+                    <p>
+                        Xem danh sách tài khoản khách hàng,
+                        theo dõi và quản lý người dùng trên hệ thống.
+                    </p>
+
+                    <span class="tm-admin-card-link">
+                        Quản lý người dùng
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- STORE APPROVAL -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin"
+                   asp-controller="StoreApproval"
+                   asp-action="Index"
+                   class="tm-admin-card">
+
+                    <div class="tm-admin-icon">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+
+                    <h5>Duyệt mở cửa hàng</h5>
+
+                    <p>
+                        Xem xét yêu cầu đăng ký mở cửa hàng
+                        và cấp quyền StoreOwner cho người dùng.
+                    </p>
+
+                    <span class="tm-admin-card-link">
+                        Xét duyệt yêu cầu
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- STORES -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin"
+                   asp-controller="Store"
+                   asp-action="Index"
+                   class="tm-admin-card">
+
+                    <div class="tm-admin-icon">
+                        <i class="bi bi-shop"></i>
+                    </div>
+
+                    <h5>Quản lý cửa hàng</h5>
+
+                    <p>
+                        Theo dõi danh sách cửa hàng đã đăng ký,
+                        thông tin và tình trạng hoạt động.
+                    </p>
+
+                    <span class="tm-admin-card-link">
+                        Quản lý cửa hàng
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- PRODUCTS -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin"
+                   asp-controller="Product"
+                   asp-action="Index"
+                   class="tm-admin-card">
+
+                    <div class="tm-admin-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+
+                    <h5>Quản lý sản phẩm</h5>
+
+                    <p>
+                        Kiểm soát danh sách sản phẩm được đăng bán
+                        trên nền tảng TechMarket.
+                    </p>
+
+                    <span class="tm-admin-card-link">
+                        Quản lý sản phẩm
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- CATEGORIES -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin"
+                   asp-controller="Category"
+                   asp-action="Index"
+                   class="tm-admin-card">
+
+                    <div class="tm-admin-icon">
+                        <i class="bi bi-tags-fill"></i>
+                    </div>
+
+                    <h5>Quản lý danh mục</h5>
+
+                    <p>
+                        Thêm, chỉnh sửa và quản lý các danh mục
+                        sản phẩm trên hệ thống.
+                    </p>
+
+                    <span class="tm-admin-card-link">
+                        Quản lý danh mục
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- DISCOUNTS -->
+            <div class="col-md-6 col-xl-4">
+                <a asp-area="Admin" asp-controller="Discount" asp-action="Index" class="tm-admin-card">
+                    <div class="tm-admin-icon"><i class="bi bi-ticket-perforated"></i></div>
+                    <h5>Quản lý mã giảm giá</h5>
+                    <p>Tạo voucher, thiết lập điều kiện, thời hạn và theo dõi lượt sử dụng.</p>
+                    <span class="tm-admin-card-link">Quản lý mã giảm giá <i class="bi bi-arrow-right"></i></span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- SECURITY NOTE -->
+        <div class="tm-admin-note">
+            <div class="d-flex align-items-center gap-3">
+                <div class="tm-admin-note-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+
+                <div>
+                    <h6>Khu vực quản trị viên</h6>
+                    <p>
+                        Chỉ tài khoản được cấp quyền Admin mới có thể
+                        truy cập và quản lý các chức năng tại khu vực này.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,9 @@
+@model IEnumerable<TechMarket.Areas.Admin.Controllers.StoreAdminRow>
+@{ Layout = "/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Quản lý cửa hàng"; }
+<div class="container py-4"><small class="text-uppercase text-secondary">ADMIN / STORES</small><h2 class="fw-bold mb-3">Quản lý cửa hàng</h2>
+@if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>}
+<form method="get" class="row g-2 mb-3"><div class="col-md-9"><input name="keyword" value="@ViewBag.Keyword" class="form-control" placeholder="Tìm cửa hàng hoặc chủ cửa hàng" /></div><div class="col-md-3"><button class="btn btn-dark w-100">Tìm kiếm</button></div></form>
+<div class="table-responsive bg-white border rounded-3"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th>Cửa hàng</th><th>Chủ cửa hàng</th><th>Liên hệ</th><th>Địa chỉ</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+@foreach(var s in Model){<tr><td><strong>@s.StoreName</strong><div class="small text-muted">#@s.Id</div></td><td>@s.OwnerName<div class="small text-muted">@s.OwnerEmail</div></td><td>@s.Phone</td><td>@s.Address</td><td><span class="badge @(s.IsActive?"bg-success":"bg-secondary")">@(s.IsActive?"Hoạt động":"Tạm ngưng")</span></td><td><div class="d-flex gap-1"><a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary">Sửa</a><form asp-action="ToggleStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@s.Id"/><button class="btn btn-sm btn-outline-secondary">@(s.IsActive?"Tạm ngưng":"Mở lại")</button></form></div></td></tr>}
+@if(!Model.Any()){<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có cửa hàng.</td></tr>}
+</tbody></table></div></div>

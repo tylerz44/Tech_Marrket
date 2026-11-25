@@ -1,0 +1,73 @@
+﻿@model IEnumerable<TechMarket.Models.StoreRegistrationRequest>
+
+@{
+    ViewData["Title"] = "Trạng thái đăng ký cửa hàng";
+}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4">YÊU CẦU MỞ CỬA HÀNG</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Bạn chưa gửi yêu cầu đăng ký cửa hàng.
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            Đăng ký mở cửa hàng
+        </a>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tên cửa hàng</th>
+                        <th>Địa chỉ</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.StoreName</td>
+                            <td>@item.Address</td>
+                            <td>
+                                @item.CreatedAt.ToString("dd/MM/yyyy")
+                            </td>
+                            <td>
+                                @if (item.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Đang chờ duyệt
+                                    </span>
+                                }
+                                else if (item.Status == "Approved")
+                                {
+                                    <span class="badge bg-success">
+                                        Đã duyệt
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        Bị từ chối
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+</div>

@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Trang khách hàng";
+}
+
+<div class="container mt-4">
+    <h2>TRANG KHÁCH HÀNG</h2>
+    <p>Chào mừng bạn đến với TechMarket.</p>
+
+    <a asp-controller="Customer"
+       asp-action="Profile"
+       class="btn btn-primary">
+        Thông tin cá nhân
+    </a>
+
+    <a asp-controller="Customer"
+       asp-action="Orders"
+       class="btn btn-dark">
+        Đơn hàng của tôi
+    </a>
+</div>

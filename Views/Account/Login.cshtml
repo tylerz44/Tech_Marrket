@@ -1,0 +1,401 @@
+﻿@model TechMarket.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<style>
+    .auth-page {
+        min-height: 85vh;
+        padding: 65px 16px;
+        background: radial-gradient( circle at 12% 20%, rgba(168, 185, 160, .30), transparent 30% ), radial-gradient( circle at 88% 80%, rgba(199, 168, 117, .20), transparent 28% ), linear-gradient( 135deg, #F7F8F3 0%, #EEF2EA 50%, #F8F6EF 100% );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+        /* Mảng trang trí phía sau */
+        .auth-page::before {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            top: -180px;
+            left: -130px;
+            border: 1px solid rgba(41, 72, 59, .10);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(168, 185, 160, .07), 0 0 0 75px rgba(168, 185, 160, .04);
+            z-index: -1;
+        }
+
+        /* Mảng trang trí phía dưới */
+        .auth-page::after {
+            content: "";
+            position: absolute;
+            width: 480px;
+            height: 480px;
+            right: -180px;
+            bottom: -230px;
+            border: 1px solid rgba(199, 168, 117, .20);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(199, 168, 117, .07), 0 0 0 75px rgba(199, 168, 117, .04);
+            z-index: -1;
+        }
+
+    /* Đảm bảo form nằm phía trên background */
+    .auth-card {
+        width: 100%;
+        max-width: 460px;
+        background: rgba(255, 255, 255, .94);
+        border: 1px solid rgba(255, 255, 255, .9);
+        border-radius: 22px;
+        padding: 38px;
+        box-shadow: 0 20px 60px rgba(41, 72, 59, .10), 0 4px 15px rgba(41, 72, 59, .04);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* LOGO */
+
+    .auth-brand {
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 20px;
+        border-radius: 18px;
+        background: #29483B;
+        color: #D8BE91;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Georgia, serif;
+        font-size: 30px;
+        font-weight: 800;
+        box-shadow: 0 8px 20px rgba(41, 72, 59, .15);
+    }
+
+    /* TITLE */
+
+    .auth-title {
+        color: #29483B;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 9px;
+    }
+
+    .auth-subtitle {
+        color: #849087;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    /* LABEL */
+
+    .auth-label {
+        color: #29483B;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    /* INPUT */
+
+    .auth-input {
+        min-height: 48px;
+        border: 1px solid #DCE4D9;
+        border-radius: 9px;
+        padding: 11px 14px;
+        font-size: 14px;
+        color: #35443B;
+        background: #FFFFFF;
+        transition: all .2s ease;
+    }
+
+        .auth-input:focus {
+            border-color: #A8B9A0;
+            box-shadow: 0 0 0 3px rgba(168, 185, 160, .2);
+            outline: none;
+        }
+
+        .auth-input::placeholder {
+            color: #A6B0A7;
+        }
+
+    /* VALIDATION */
+
+    .auth-validation {
+        font-size: 12px;
+        color: #C04444;
+    }
+
+        /* Ẩn khung thông báo khi không có lỗi */
+        .auth-validation.validation-summary-valid {
+            display: none !important;
+        }
+
+        /* Chỉ hiển thị khung khi có lỗi */
+        .auth-validation.validation-summary-errors {
+            display: block !important;
+            margin-bottom: 15px;
+        }
+
+        .auth-validation ul {
+            margin: 0;
+            padding: 11px 15px 11px 30px;
+            background: #FCEEEE;
+            border: 1px solid #F3D1D1;
+            border-radius: 9px;
+        }
+
+        .auth-validation li {
+            margin: 3px 0;
+        }
+
+    .field-validation-valid {
+        display: none !important;
+    }
+
+    .field-validation-error {
+        display: block;
+        margin-top: 5px;
+    }
+    /* BUTTON */
+
+    .auth-submit {
+        width: 100%;
+        min-height: 49px;
+        border: 1px solid #29483B;
+        border-radius: 9px;
+        background: #29483B;
+        color: #FFFFFF;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        transition: all .25s ease;
+    }
+
+        .auth-submit:hover {
+            background: #C7A875;
+            border-color: #C7A875;
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(199, 168, 117, .2);
+        }
+
+    /* LINK */
+
+    .auth-link {
+        color: #29483B;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .auth-link:hover {
+            color: #B18E5D;
+            text-decoration: underline;
+        }
+
+    /* CHECKBOX */
+
+    .auth-check {
+        color: #66756A;
+        font-size: 13px;
+    }
+
+    .auth-check-input {
+        border-color: #C9D4C6;
+        cursor: pointer;
+    }
+
+        .auth-check-input:checked {
+            background-color: #29483B;
+            border-color: #29483B;
+        }
+
+        .auth-check-input:focus {
+            box-shadow: 0 0 0 3px rgba(168, 185, 160, .2);
+        }
+
+    /* DIVIDER */
+
+    .auth-divider {
+        height: 1px;
+        background: #EDF0E9;
+        margin: 25px 0 0;
+    }
+
+    /* FOOTER */
+
+    .auth-footer {
+        color: #849087;
+        font-size: 13px;
+        text-align: center;
+        margin: 22px 0 0;
+    }
+
+    /* DECORATION */
+
+    .auth-decoration {
+        color: #A8B9A0;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-align: center;
+        margin-top: 24px;
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 576px) {
+        .auth-page {
+            min-height: 70vh;
+            padding: 35px 14px;
+        }
+
+        .auth-card {
+            padding: 29px 22px;
+            border-radius: 16px;
+        }
+
+        .auth-title {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="auth-page">
+
+    <div class="auth-card">
+
+        <!-- LOGO -->
+        <div class="auth-brand">
+            <i class="bi bi-shop-window"></i>
+        </div>
+
+        <!-- TITLE -->
+        <h2 class="auth-title">
+            Chào mừng trở lại!
+        </h2>
+
+        <p class="auth-subtitle">
+            Đăng nhập để tiếp tục mua sắm
+            và khám phá phong cách tại TechMarket.
+        </p>
+
+        <!-- LOGIN FORM -->
+        <form asp-controller="Account"
+              asp-action="Login"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="returnUrl"
+                   value="@ViewBag.ReturnUrl" />
+
+            <!-- VALIDATION SUMMARY -->
+            <div asp-validation-summary="All"
+                 class="auth-validation"
+                 role="alert">
+            </div>
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+
+                <label asp-for="Email"
+                       class="form-label auth-label">
+                    Địa chỉ Email
+                </label>
+
+                <input asp-for="Email"
+                       class="form-control auth-input"
+                       placeholder="example@email.com"
+                       autocomplete="email" />
+
+                <span asp-validation-for="Email"
+                      class="auth-validation">
+                </span>
+
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+
+                <label asp-for="Password"
+                       class="form-label auth-label">
+                    Mật khẩu
+                </label>
+
+                <input asp-for="Password"
+                       type="password"
+                       class="form-control auth-input"
+                       placeholder="Nhập mật khẩu của bạn"
+                       autocomplete="current-password" />
+
+                <span asp-validation-for="Password"
+                      class="auth-validation">
+                </span>
+
+            </div>
+
+            <!-- REMEMBER ME -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+
+                <div class="form-check">
+
+                    <input asp-for="RememberMe"
+                           class="form-check-input auth-check-input" />
+
+                    <label asp-for="RememberMe"
+                           class="form-check-label auth-check">
+                        Ghi nhớ đăng nhập
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- LOGIN BUTTON -->
+            <button type="submit" class="auth-submit">
+
+                ĐĂNG NHẬP
+
+                <i class="bi bi-arrow-right ms-2"></i>
+
+            </button>
+
+            <div class="auth-divider"></div>
+
+            <!-- REGISTER LINK -->
+            <p class="auth-footer">
+
+                Chưa có tài khoản?
+
+                <a asp-controller="Account"
+                   asp-action="Register"
+                   class="auth-link">
+                    Đăng ký ngay
+                </a>
+
+            </p>
+
+            <div class="auth-decoration">
+                TECHMARKET · YOUR STYLE, YOUR CHOICE
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

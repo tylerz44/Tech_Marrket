@@ -1,0 +1,573 @@
+﻿@model TechMarket.ViewModels.CreateProductViewModel
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm";
+}
+
+<style>
+    .product-edit-page {
+        background: #F5F7FB;
+        min-height: 100vh;
+        padding: 35px 0 60px;
+    }
+
+    .edit-header {
+        background: linear-gradient(120deg, #0A111D, #18365D);
+        border-radius: 16px;
+        padding: 28px 32px;
+        margin-bottom: 25px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+        .edit-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 7px;
+        }
+
+        .edit-header p {
+            color: #AABBD0;
+            font-size: 13px;
+            margin: 0;
+        }
+
+    .btn-back-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255,255,255,.35);
+        border-radius: 9px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+        white-space: nowrap;
+    }
+
+        .btn-back-edit:hover {
+            background: #D6B98C;
+            color: #0A111D;
+            border-color: #D6B98C;
+            transform: translateY(-2px);
+        }
+
+    .edit-card {
+        background: white;
+        border: 1px solid #E8EDF4;
+        border-radius: 15px;
+        padding: 27px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(10,17,29,.035);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        color: #132C4F;
+        font-size: 16px;
+        font-weight: 800;
+        padding-bottom: 17px;
+        margin-bottom: 22px;
+        border-bottom: 1px solid #EDF0F5;
+    }
+
+    .section-icon {
+        width: 35px;
+        height: 35px;
+        flex-shrink: 0;
+        background: #F5F0E7;
+        color: #9A794C;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .edit-label {
+        color: #263B56;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .edit-control {
+        min-height: 45px;
+        border: 1px solid #DCE3ED;
+        border-radius: 9px;
+        font-size: 13px;
+        color: #132C4F;
+        padding: 10px 13px;
+        width: 100%;
+        background-color: #fff;
+        transition: .2s;
+    }
+
+        .edit-control:focus {
+            border-color: #D6B98C;
+            box-shadow: 0 0 0 3px rgba(214,185,140,.18);
+            outline: none;
+        }
+
+    textarea.edit-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .edit-control::placeholder {
+        color: #A5B1C0;
+    }
+
+    .edit-validation {
+        display: block;
+        font-size: 12px;
+        margin-top: 5px;
+        color: #DC3545;
+    }
+
+    .edit-hint {
+        color: #8495A9;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-top: 7px;
+    }
+
+    .image-box {
+        background: #F8F9FC;
+        border: 1px dashed #CBD5E1;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .image-preview {
+        display: none;
+        width: 100%;
+        max-width: 230px;
+        height: 230px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #D6B98C;
+        margin-top: 15px;
+    }
+
+    .edit-note {
+        background: #F8F5EF;
+        border: 1px solid #E9DDC9;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #786345;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .btn-save-product {
+        background: #132C4F;
+        color: white;
+        border: 1px solid #132C4F;
+        border-radius: 9px;
+        padding: 12px 23px;
+        font-size: 13px;
+        font-weight: 800;
+        transition: .2s;
+    }
+
+        .btn-save-product:hover {
+            background: #D6B98C;
+            border-color: #D6B98C;
+            color: #0A111D;
+            transform: translateY(-2px);
+        }
+
+    .btn-cancel-product {
+        background: white;
+        color: #52677F;
+        border: 1px solid #DCE3ED;
+        border-radius: 9px;
+        padding: 12px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .btn-cancel-product:hover {
+            background: #EDF1F6;
+            color: #132C4F;
+        }
+
+    @@media (max-width: 768px) {
+        .edit-header {
+            padding: 23px;
+        }
+
+        .edit-card {
+            padding: 20px;
+        }
+
+        .edit-header h2 {
+            font-size: 21px;
+        }
+    }
+</style>
+
+<div class="product-edit-page">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="edit-header">
+            <div>
+                <h2>
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Thêm sản phẩm mới
+                </h2>
+
+                <p>
+                    Tạo sản phẩm và đăng bán trên cửa hàng của bạn
+                </p>
+            </div>
+
+            <a asp-area="Store"
+               asp-controller="Product"
+               asp-action="Index"
+               class="btn-back-edit">
+                <i class="bi bi-arrow-left"></i>
+                Quay lại danh sách
+            </a>
+        </div>
+
+        <form asp-area="Store"
+              asp-controller="Product"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!-- VALIDATION -->
+            <div asp-validation-summary="All"
+                 class="alert alert-danger mb-4">
+            </div>
+
+            <div class="row">
+
+                <!-- CỘT TRÁI -->
+                <div class="col-lg-8">
+
+                    <!-- THÔNG TIN CƠ BẢN -->
+                    <div class="edit-card">
+
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            Thông tin sản phẩm
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="edit-label">
+                                Tên sản phẩm
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="edit-control"
+                                   placeholder="Nhập tên sản phẩm..." />
+
+                            <span asp-validation-for="Name"
+                                  class="edit-validation"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="edit-label">
+                                Mô tả sản phẩm
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="edit-control"
+                                      placeholder="Nhập mô tả chi tiết về sản phẩm..."></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="edit-validation"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="CategoryId" class="edit-label">
+                                Danh mục
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <select asp-for="CategoryId"
+                                    asp-items="Model.Categories"
+                                    class="edit-control">
+                                <option value="">-- Chọn danh mục --</option>
+                            </select>
+
+                            <span asp-validation-for="CategoryId"
+                                  class="edit-validation"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- GIÁ VÀ SỐ LƯỢNG -->
+                    <div class="edit-card">
+
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            Giá bán và số lượng
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label asp-for="Price" class="edit-label">
+                                    Giá bán (VNĐ)
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <div class="input-group">
+                                    <input asp-for="Price"
+                                           type="number"
+                                           step="0.01"
+                                           min="0.01"
+                                           class="form-control edit-control"
+                                           placeholder="150000" />
+
+                                    <span class="input-group-text bg-light">
+                                        ₫
+                                    </span>
+                                </div>
+
+                                <span asp-validation-for="Price"
+                                      class="edit-validation"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Quantity" class="edit-label">
+                                    Số lượng tồn kho
+                                </label>
+
+                                <input asp-for="Quantity"
+                                       type="number"
+                                       min="0"
+                                       class="edit-control"
+                                       placeholder="Nhập số lượng" />
+
+                                <span asp-validation-for="Quantity"
+                                      class="edit-validation"></span>
+
+                                <div class="edit-hint">
+                                    Số lượng ban đầu của sản phẩm.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="edit-note mt-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Nếu sử dụng quản lý tồn kho theo Size/Màu sắc,
+                            bạn có thể tạo các biến thể sau khi thêm sản phẩm.
+                        </div>
+
+                    </div>
+
+                    <!-- THUỘC TÍNH -->
+                    <div class="edit-card">
+
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="bi bi-palette"></i>
+                            </div>
+                            Thuộc tính sản phẩm
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label asp-for="Size" class="edit-label">
+                                    Kích cỡ
+                                </label>
+
+                                <input asp-for="Size"
+                                       class="edit-control"
+                                       placeholder="S, M, L, XL" />
+
+                                <div class="edit-hint">
+                                    Ví dụ: S, M, L, XL hoặc để trống nếu quản lý bằng biến thể.
+                                </div>
+
+                                <span asp-validation-for="Size"
+                                      class="edit-validation"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Color" class="edit-label">
+                                    Màu sắc
+                                </label>
+
+                                <input asp-for="Color"
+                                       class="edit-control"
+                                       placeholder="Đen, Trắng, Xanh..." />
+
+                                <div class="edit-hint">
+                                    Ví dụ: Đen, Trắng, Xanh hoặc để trống nếu quản lý bằng biến thể.
+                                </div>
+
+                                <span asp-validation-for="Color"
+                                      class="edit-validation"></span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div class="col-lg-4">
+
+                    <!-- HÌNH ẢNH -->
+                    <div class="edit-card">
+
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            Hình ảnh sản phẩm
+                        </div>
+
+                        <div class="image-box text-center">
+
+                            <i class="bi bi-cloud-arrow-up fs-1"
+                               style="color:#9A794C;"></i>
+
+                            <p class="edit-label mt-2 mb-1">
+                                Tải ảnh sản phẩm lên
+                            </p>
+
+                            <p class="edit-hint mb-3">
+                                Chọn hình ảnh rõ nét để khách hàng dễ nhận biết sản phẩm.
+                            </p>
+
+                            <input asp-for="ImageFile"
+                                   type="file"
+                                   accept=".jpg,.jpeg,.png,.webp"
+                                   class="form-control edit-control"
+                                   id="imageInput" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="edit-validation"></span>
+
+                            <img id="imagePreview"
+                                 class="image-preview"
+                                 alt="Ảnh xem trước" />
+
+                        </div>
+
+                        <div class="edit-hint">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Hỗ trợ JPG, JPEG, PNG, WEBP. Dung lượng tối đa 5 MB.
+                        </div>
+
+                    </div>
+
+                    <!-- HOÀN TẤT -->
+                    <div class="edit-card">
+
+                        <div class="section-title">
+                            <div class="section-icon">
+                                <i class="bi bi-check2-circle"></i>
+                            </div>
+                            Hoàn tất
+                        </div>
+
+                        <p class="text-muted small mb-4">
+                            Kiểm tra thông tin trước khi đăng sản phẩm lên cửa hàng.
+                        </p>
+
+                        <button type="submit"
+                                class="btn-save-product w-100 mb-3">
+                            <i class="bi bi-check-lg me-2"></i>
+                            LƯU SẢN PHẨM
+                        </button>
+
+                        <a asp-area="Store"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           class="btn-cancel-product d-block text-center">
+                            <i class="bi bi-x-lg me-2"></i>
+                            Hủy và quay lại
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const imageInput = document.getElementById("imageInput");
+            const imagePreview = document.getElementById("imagePreview");
+
+            imageInput.addEventListener("change", function () {
+
+                const file = this.files[0];
+
+                if (!file) {
+                    imagePreview.style.display = "none";
+                    imagePreview.src = "";
+                    return;
+                }
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ];
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert("Vui lòng chọn ảnh JPG, JPEG, PNG hoặc WEBP.");
+                    this.value = "";
+                    imagePreview.style.display = "none";
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("Dung lượng ảnh không được vượt quá 5 MB.");
+                    this.value = "";
+                    imagePreview.style.display = "none";
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+        });
+    </script>
+}

@@ -1,0 +1,624 @@
+﻿@model TechMarket.ViewModels.StoreRegistrationViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký mở cửa hàng";
+}
+
+<style>
+    .store-register-page {
+        background: #F7F8F3;
+        min-height: 85vh;
+        padding: 55px 16px;
+    }
+
+    .store-register-wrapper {
+        max-width: 1050px;
+        margin: auto;
+    }
+
+    .store-register-card {
+        background: #FFFFFF;
+        border: 1px solid #E7EAE3;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(35, 62, 45, .08);
+    }
+
+    /* LEFT PANEL */
+
+    .store-register-intro {
+        height: 100%;
+        min-height: 100%;
+        padding: 45px 35px;
+        background: #29483B;
+        color: #FFFFFF;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .store-register-intro::before {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 50%;
+            right: -100px;
+            top: -80px;
+        }
+
+        .store-register-intro::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 50%;
+            right: -55px;
+            bottom: -65px;
+        }
+
+    .store-intro-icon {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: rgba(255,255,255,.12);
+        color: #E4D0A8;
+        font-size: 29px;
+        margin-bottom: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .store-intro-title {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 30px;
+        line-height: 1.35;
+        font-weight: 700;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .store-intro-description {
+        color: #D5E0D5;
+        font-size: 13px;
+        line-height: 1.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .store-benefits {
+        margin-top: 38px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .store-benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-bottom: 23px;
+    }
+
+    .store-benefit-icon {
+        width: 35px;
+        height: 35px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(255,255,255,.12);
+        color: #D8BE91;
+        font-size: 16px;
+    }
+
+    .store-benefit-item strong {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 4px;
+        color: #FFFFFF;
+    }
+
+    .store-benefit-item span {
+        color: #C5D2C6;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    /* RIGHT PANEL */
+
+    .store-register-content {
+        padding: 42px 45px;
+    }
+
+    .store-form-heading {
+        margin-bottom: 28px;
+    }
+
+        .store-form-heading h2 {
+            color: #29483B;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 27px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .store-form-heading p {
+            color: #849087;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+    .store-section-label {
+        color: #A7824F;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .store-section-label::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #E7EAE3;
+        }
+
+    /* FORM */
+
+    .store-form-group {
+        margin-bottom: 20px;
+    }
+
+    .store-form-label {
+        color: #29483B;
+        font-size: 12px;
+        font-weight: 750;
+        margin-bottom: 8px;
+    }
+
+    .store-form-control {
+        width: 100%;
+        min-height: 47px;
+        border: 1px solid #DCE4D9;
+        border-radius: 9px;
+        padding: 11px 14px;
+        color: #35443B;
+        background: #FFFFFF;
+        font-size: 13px;
+        transition: .2s;
+    }
+
+        .store-form-control:focus {
+            border-color: #A8B9A0;
+            box-shadow: 0 0 0 3px rgba(168,185,160,.2);
+            outline: none;
+        }
+
+        .store-form-control::placeholder {
+            color: #A6B0A7;
+        }
+
+    textarea.store-form-control {
+        min-height: 115px;
+        resize: vertical;
+    }
+
+    .store-field-icon {
+        position: relative;
+    }
+
+        .store-field-icon > i {
+            position: absolute;
+            left: 14px;
+            top: 15px;
+            color: #849B83;
+            font-size: 15px;
+            pointer-events: none;
+        }
+
+        .store-field-icon .store-form-control {
+            padding-left: 40px;
+        }
+
+    .store-validation {
+        display: block;
+        font-size: 11px;
+        color: #C04444;
+        margin-top: 5px;
+    }
+
+        .store-validation:empty {
+            display: none;
+        }
+
+    .store-validation-summary {
+        font-size: 12px;
+        color: #C04444;
+    }
+
+        .store-validation-summary:empty {
+            display: none !important;
+        }
+
+        .store-validation-summary ul {
+            background: #FCEEEE;
+            border: 1px solid #F3D1D1;
+            border-radius: 9px;
+            padding: 12px 15px 12px 30px;
+            margin-bottom: 20px;
+        }
+
+    /* NOTICE */
+
+    .store-notice {
+        display: flex;
+        gap: 11px;
+        padding: 13px 15px;
+        background: #F3F6EF;
+        border: 1px solid #E1E9DC;
+        border-radius: 9px;
+        margin: 25px 0;
+    }
+
+        .store-notice i {
+            color: #78917C;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .store-notice p {
+            color: #66756A;
+            font-size: 11px;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+    /* BUTTONS */
+
+    .store-submit-btn {
+        width: 100%;
+        min-height: 49px;
+        background: #29483B;
+        border: 1px solid #29483B;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .7px;
+        transition: .25s;
+    }
+
+        .store-submit-btn:hover {
+            background: #C7A875;
+            border-color: #C7A875;
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(199,168,117,.2);
+        }
+
+    .store-back-btn {
+        width: 100%;
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 11px;
+        background: #FFFFFF;
+        border: 1px solid #DCE4D9;
+        border-radius: 8px;
+        color: #52675A;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .store-back-btn:hover {
+            background: #E4EADF;
+            color: #29483B;
+            border-color: #A8B9A0;
+        }
+
+    .store-form-footer {
+        text-align: center;
+        color: #A0AAA0;
+        font-size: 10px;
+        margin-top: 22px;
+        letter-spacing: .7px;
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 767px) {
+        .store-register-page {
+            padding: 30px 13px;
+        }
+
+        .store-register-intro {
+            min-height: auto;
+            padding: 30px 25px;
+        }
+
+        .store-intro-title {
+            font-size: 25px;
+        }
+
+        .store-benefits {
+            margin-top: 25px;
+        }
+
+        .store-benefit-item {
+            margin-bottom: 15px;
+        }
+
+        .store-register-content {
+            padding: 30px 23px;
+        }
+
+        .store-form-heading h2 {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="store-register-page">
+
+    <div class="store-register-wrapper">
+
+        <div class="store-register-card">
+
+            <div class="row g-0">
+
+                <!-- LEFT INTRO -->
+                <div class="col-md-5">
+
+                    <div class="store-register-intro">
+
+                        <div class="store-intro-icon">
+                            <i class="bi bi-shop-window"></i>
+                        </div>
+
+                        <h2 class="store-intro-title">
+                           Hành trình kinh doanh cùng TechMarket
+                        </h2>
+
+                        <p class="store-intro-description">
+                            Đưa sản phẩm của bạn đến gần hơn với khách hàng.
+                            Xây dựng thương hiệu và phát triển cửa hàng
+                            ngay trên nền tảng TechMarket.
+                        </p>
+
+                        <div class="store-benefits">
+
+                            <div class="store-benefit-item">
+                                <div class="store-benefit-icon">
+                                    <i class="bi bi-globe2"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Tiếp cận khách hàng</strong>
+                                    <span>
+                                        Giới thiệu sản phẩm đến cộng đồng
+                                        khách hàng trên nền tảng.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="store-benefit-item">
+                                <div class="store-benefit-icon">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Quản lý sản phẩm</strong>
+                                    <span>
+                                        Quản lý danh mục, tồn kho và
+                                        thông tin sản phẩm dễ dàng.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="store-benefit-item">
+                                <div class="store-benefit-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+
+                                <div>
+                                    <strong>Phát triển kinh doanh</strong>
+                                    <span>
+                                        Theo dõi đơn hàng và phát triển
+                                        hoạt động bán hàng.
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT FORM -->
+                <div class="col-md-7">
+
+                    <div class="store-register-content">
+
+                        <div class="store-form-heading">
+
+                            <h2>
+                                Đăng ký mở cửa hàng
+                            </h2>
+
+                            <p>
+                                Vui lòng cung cấp thông tin cửa hàng
+                                để gửi yêu cầu xét duyệt.
+                            </p>
+
+                        </div>
+
+                        <form asp-controller="StoreRegistration"
+                              asp-action="Create"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="store-validation-summary"
+                                 role="alert">
+                            </div>
+
+                            <div class="store-section-label">
+                                Thông tin cửa hàng
+                            </div>
+
+                            <!-- STORE NAME -->
+                            <div class="store-form-group">
+
+                                <label asp-for="StoreName"
+                                       class="form-label store-form-label">
+                                    Tên cửa hàng
+                                </label>
+
+                                <div class="store-field-icon">
+                                    <i class="bi bi-shop"></i>
+
+                                    <input asp-for="StoreName"
+                                           class="form-control store-form-control"
+                                           placeholder="Ví dụ: Tech Fashion Store" />
+                                </div>
+
+                                <span asp-validation-for="StoreName"
+                                      class="store-validation">
+                                </span>
+
+                            </div>
+
+                            <!-- DESCRIPTION -->
+                            <div class="store-form-group">
+
+                                <label asp-for="Description"
+                                       class="form-label store-form-label">
+                                    Mô tả cửa hàng
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control store-form-control"
+                                          rows="4"
+                                          placeholder="Giới thiệu về cửa hàng, sản phẩm và phong cách kinh doanh..."></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="store-validation">
+                                </span>
+
+                            </div>
+
+                            <!-- ADDRESS -->
+                            <div class="store-form-group">
+
+                                <label asp-for="Address"
+                                       class="form-label store-form-label">
+                                    Địa chỉ cửa hàng
+                                </label>
+
+                                <div class="store-field-icon">
+                                    <i class="bi bi-geo-alt"></i>
+
+                                    <input asp-for="Address"
+                                           class="form-control store-form-control"
+                                           placeholder="Nhập địa chỉ cửa hàng" />
+                                </div>
+
+                                <span asp-validation-for="Address"
+                                      class="store-validation">
+                                </span>
+
+                            </div>
+
+                            <!-- PHONE -->
+                            <div class="store-form-group">
+
+                                <label asp-for="Phone"
+                                       class="form-label store-form-label">
+                                    Số điện thoại liên hệ
+                                </label>
+
+                                <div class="store-field-icon">
+                                    <i class="bi bi-telephone"></i>
+
+                                    <input asp-for="Phone"
+                                           class="form-control store-form-control"
+                                           placeholder="Nhập số điện thoại"
+                                           type="tel"
+                                           autocomplete="tel" />
+                                </div>
+
+                                <span asp-validation-for="Phone"
+                                      class="store-validation">
+                                </span>
+
+                            </div>
+
+                            <!-- NOTICE -->
+                            <div class="store-notice">
+                                <i class="bi bi-info-circle-fill"></i>
+
+                                <p>
+                                    Sau khi gửi yêu cầu, thông tin cửa hàng
+                                    sẽ được quản trị viên kiểm tra và xét duyệt.
+                                    Bạn chỉ có thể bắt đầu bán hàng sau khi
+                                    yêu cầu được chấp thuận.
+                                </p>
+                            </div>
+
+                            <!-- SUBMIT -->
+                            <button type="submit"
+                                    class="store-submit-btn">
+
+                                <i class="bi bi-send-fill me-2"></i>
+                                GỬI YÊU CẦU ĐĂNG KÝ
+
+                            </button>
+
+                            <!-- BACK -->
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               class="store-back-btn">
+
+                                <i class="bi bi-arrow-left"></i>
+                                Quay lại trang chủ
+
+                            </a>
+
+                            <div class="store-form-footer">
+                                TECHMARKET · YOUR STYLE, YOUR CHOICE
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

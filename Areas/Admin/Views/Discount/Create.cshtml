@@ -1,0 +1,13 @@
+@model TechMarket.Models.DiscountCode
+@{ ViewData["Title"] = "Tạo mã giảm giá"; }
+<div class="container py-4" style="max-width:760px"><h2>@ViewData["Title"]</h2><form method="post">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden"/>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="Code" class="form-label">Mã giảm giá</label><input asp-for="Code" class="form-control" placeholder="VD: TECH10"/><span asp-validation-for="Code" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="DiscountType" class="form-label">Loại giảm</label><select asp-for="DiscountType" class="form-select"><option value="PERCENT">Giảm theo phần trăm</option><option value="FIXED">Giảm số tiền cố định</option></select></div>
+<div class="mb-3"><label asp-for="DiscountValue" class="form-label">Giá trị giảm</label><input asp-for="DiscountValue" class="form-control"/><span asp-validation-for="DiscountValue" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MaxDiscountAmount" class="form-label">Giảm tối đa (áp dụng cho %; 0 = không giới hạn)</label><input asp-for="MaxDiscountAmount" class="form-control"/></div>
+<div class="mb-3"><label asp-for="MinOrderAmount" class="form-label">Giá trị đơn tối thiểu</label><input asp-for="MinOrderAmount" class="form-control"/></div>
+<div class="mb-3"><label asp-for="UsageLimit" class="form-label">Tổng lượt sử dụng</label><input asp-for="UsageLimit" class="form-control"/></div>
+<div class="row"><div class="col-md-6 mb-3"><label asp-for="StartAt" class="form-label">Bắt đầu</label><input asp-for="StartAt" type="datetime-local" class="form-control" value="@Model.StartAt.ToString("yyyy-MM-ddTHH:mm")"/></div><div class="col-md-6 mb-3"><label asp-for="EndAt" class="form-label">Kết thúc</label><input asp-for="EndAt" type="datetime-local" class="form-control" value="@Model.EndAt.ToString("yyyy-MM-ddTHH:mm")"/></div></div>
+<div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input"/><label asp-for="IsActive" class="form-check-label">Kích hoạt mã</label></div>
+<button class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></form></div>

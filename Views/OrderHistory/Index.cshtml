@@ -1,0 +1,508 @@
+@model List<TechMarket.Models.Order>
+
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+
+    int totalOrders = Model?.Count ?? 0;
+    int completedOrders = Model?.Count(o => o.Status == "Đã giao hàng") ?? 0;
+    int cancelledOrders = Model?.Count(o => o.Status == "Đã hủy") ?? 0;
+}
+
+<style>
+    .order-history {
+        background: #F8F9FC;
+        min-height: 80vh;
+        padding: 45px 0 70px;
+    }
+
+    .history-header {
+        margin-bottom: 30px;
+    }
+
+    .history-label {
+        color: #B49A70;
+        font-size: 12px;
+        letter-spacing: 3px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .history-title {
+        color: #0A111D;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 10px 0;
+    }
+
+    .history-description {
+        color: #7B8492;
+        font-size: 14px;
+    }
+
+    .history-stat {
+        background: white;
+        border: 1px solid #E9ECF2;
+        border-radius: 12px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .stat-label {
+        color: #7B8492;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .stat-number {
+        color: #0A111D;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F1F4F9;
+        color: #132C4F;
+        font-size: 19px;
+    }
+
+    .order-card {
+        background: #fff;
+        border: 1px solid #E9ECF2;
+        border-radius: 14px;
+        margin-bottom: 18px;
+        overflow: hidden;
+        transition: .2s ease;
+    }
+
+    .order-card:hover {
+        border-color: #C8B28D;
+        box-shadow: 0 8px 25px rgba(10, 17, 29, .06);
+    }
+
+    .order-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #EEF0F4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .order-code {
+        color: #0A111D;
+        font-size: 17px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .order-code:hover {
+        color: #B49A70;
+    }
+
+    .order-date {
+        color: #89919E;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .order-card-body {
+        padding: 22px 24px;
+    }
+
+    .order-info-label {
+        color: #929AA6;
+        font-size: 12px;
+        margin-bottom: 7px;
+    }
+
+    .order-info-value {
+        color: #172337;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .order-total {
+        color: #B18B53;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .order-card-footer {
+        padding: 15px 24px;
+        background: #FBFCFE;
+        border-top: 1px solid #EEF0F4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 13px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #FFF4D9;
+        color: #9B6B00;
+    }
+
+    .status-confirmed {
+        background: #E4F3FA;
+        color: #176A91;
+    }
+
+    .status-shipping {
+        background: #E8EEFF;
+        color: #3656A5;
+    }
+
+    .status-completed {
+        background: #E3F5EA;
+        color: #237B45;
+    }
+
+    .status-cancelled {
+        background: #FCE8E8;
+        color: #B42318;
+    }
+
+    .status-default {
+        background: #EEF0F3;
+        color: #596273;
+    }
+
+    .btn-order-detail {
+        background: #0A111D;
+        color: white;
+        border: 1px solid #0A111D;
+        border-radius: 7px;
+        padding: 9px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .btn-order-detail:hover {
+        background: #132C4F;
+        color: white;
+    }
+
+    .empty-order {
+        background: white;
+        border: 1px solid #E9ECF2;
+        border-radius: 14px;
+        padding: 65px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 75px;
+        height: 75px;
+        background: #F1F4F9;
+        color: #132C4F;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        margin: 0 auto 20px;
+    }
+
+    .btn-shopping {
+        display: inline-block;
+        background: #0A111D;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 18px;
+    }
+
+    .btn-shopping:hover {
+        background: #132C4F;
+        color: white;
+    }
+
+    .alert-history {
+        border-radius: 9px;
+        border: none;
+        font-size: 14px;
+    }
+
+    @@media (max-width: 576px) {
+        .history-title {
+            font-size: 26px;
+        }
+
+        .order-card-header,
+        .order-card-body,
+        .order-card-footer {
+            padding: 16px;
+        }
+
+        .order-card-footer {
+            align-items: stretch;
+        }
+
+        .btn-order-detail {
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="order-history">
+    <div class="container">
+
+        <!-- TIÊU ĐỀ -->
+        <div class="history-header">
+            <div class="history-label">TECHMARKET / ACCOUNT</div>
+            <h1 class="history-title">Lịch sử mua hàng</h1>
+            <p class="history-description">
+                Theo dõi đơn hàng và quản lý các giao dịch mua sắm của bạn.
+            </p>
+        </div>
+
+        <!-- THÔNG BÁO -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-history">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-history">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["Error"]
+            </div>
+        }
+
+        <!-- THỐNG KÊ -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="history-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label">Tổng đơn hàng</div>
+                            <div class="stat-number">@totalOrders</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="history-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label">Đã giao hàng</div>
+                            <div class="stat-number">@completedOrders</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="history-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-label">Đã hủy</div>
+                            <div class="stat-number">@cancelledOrders</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH ĐƠN HÀNG -->
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-order">
+                <div class="empty-icon">
+                    <i class="bi bi-bag"></i>
+                </div>
+
+                <h5 class="fw-bold mb-2">Bạn chưa có đơn hàng nào</h5>
+
+                <p class="text-muted mb-0">
+                    Hãy khám phá các sản phẩm tại TechMarket nhé!
+                </p>
+
+                <a asp-controller="Product"
+                   asp-action="Index"
+                   class="btn-shopping">
+                    <i class="bi bi-bag me-2"></i>
+                    Tiếp tục mua sắm
+                </a>
+            </div>
+        }
+        else
+        {
+            @foreach (var order in Model)
+            {
+                var statusClass = order.Status switch
+                {
+                    "Chờ xác nhận" => "status-pending",
+                    "Đã xác nhận" => "status-confirmed",
+                    "Đang giao hàng" => "status-shipping",
+                    "Đã giao hàng" => "status-completed",
+                    "Đã hủy" => "status-cancelled",
+                    _ => "status-default"
+                };
+
+                var paymentMethodName = order.PaymentMethod switch
+                {
+                    "COD" => "Thanh toán khi nhận hàng",
+                    "DEMOQR" => "QR Demo",
+                    "DEMOBANK" => "Ngân hàng Demo",
+                    "DEMOCARD" => "Thẻ quốc tế Demo",
+                    "VNPAYQR" => "QR Demo (đơn cũ)",
+                    "VNBANK" => "Ngân hàng Demo (đơn cũ)",
+                    "INTCARD" => "Thẻ Demo (đơn cũ)",
+                    _ => order.PaymentMethod
+                };
+
+                var paymentBadgeClass = order.PaymentStatus switch
+                {
+                    "Đã thanh toán" => "bg-success",
+                    "Chờ thanh toán" => "bg-warning text-dark",
+                    "Thanh toán thất bại" => "bg-danger",
+                    "Đã hủy" => "bg-secondary",
+                    _ => "bg-light text-dark"
+                };
+
+                <div class="order-card">
+
+                    <!-- HEADER ĐƠN HÀNG -->
+                    <div class="order-card-header">
+                        <div>
+                            <a asp-controller="OrderHistory"
+                               asp-action="Details"
+                               asp-route-id="@order.Id"
+                               class="order-code">
+                                Đơn hàng #@order.Id
+                            </a>
+
+                            <div class="order-date">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+
+                        <span class="status-badge @statusClass">
+                            <i class="bi bi-circle-fill me-2"
+                               style="font-size: 6px;"></i>
+                            @order.Status
+                        </span>
+                    </div>
+
+                    <!-- THÔNG TIN ĐƠN HÀNG -->
+                    <div class="order-card-body">
+                        <div class="row g-3">
+
+                            <div class="col-6 col-md-3">
+                                <div class="order-info-label">
+                                    SỐ LƯỢNG SẢN PHẨM
+                                </div>
+                                <div class="order-info-value">
+                                    @order.OrderDetails.Sum(d => d.Quantity) sản phẩm
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="order-info-label">
+                                    PHƯƠNG THỨC THANH TOÁN
+                                </div>
+                                <div class="order-info-value">
+                                    @paymentMethodName
+                                </div>
+                                <div class="mt-2">
+                                    <span class="badge @paymentBadgeClass">
+                                        @order.PaymentStatus
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="order-info-label">
+                                    MÃ ĐƠN HÀNG
+                                </div>
+                                <div class="order-info-value">
+                                    #@order.Id
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="order-info-label">
+                                    TỔNG THANH TOÁN
+                                </div>
+                                <div class="order-total">
+                                    @order.TotalAmount.ToString("N0") đ
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="order-card-footer">
+                        <div class="text-muted small">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Thông tin đơn hàng được lưu tại TechMarket
+                        </div>
+
+                        @if (order.PaymentMethod != "COD" &&
+                             order.PaymentStatus != "Đã thanh toán" &&
+                             order.PaymentStatus != "Đã hủy" &&
+                             order.Status != "Đã hủy")
+                        {
+                            <a asp-controller="DemoPayment"
+                               asp-action="Pay"
+                               asp-route-id="@order.Id"
+                               class="btn btn-success btn-sm me-2">
+                                <i class="bi bi-credit-card me-1"></i>
+                                Thanh toán lại
+                            </a>
+                        }
+
+                        <a asp-controller="OrderHistory"
+                           asp-action="Details"
+                           asp-route-id="@order.Id"
+                           class="btn-order-detail">
+                            Xem chi tiết
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+
+                </div>
+            }
+        }
+
+    </div>
+</div>

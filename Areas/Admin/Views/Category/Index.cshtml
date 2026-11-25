@@ -1,0 +1,471 @@
+﻿@model IEnumerable<TechMarket.Models.Category>
+
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+    Layout = "_Layout";
+}
+
+<style>
+    .category-page {
+        background: #F5F7FB;
+        min-height: 100vh;
+        padding: 30px 0 50px;
+    }
+
+    .category-header {
+        background: linear-gradient(135deg, #0A111D, #18365D);
+        border-radius: 18px;
+        padding: 28px 32px;
+        color: #fff;
+        margin-bottom: 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        box-shadow: 0 10px 25px rgba(10, 17, 29, .12);
+    }
+
+    .category-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        margin: 0 0 7px;
+    }
+
+    .category-header p {
+        color: #B8C7D9;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .header-label {
+        color: #D6B98C;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-category-create {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #D6B98C;
+        color: #0A111D;
+        border: 1px solid #D6B98C;
+        border-radius: 9px;
+        padding: 10px 17px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .btn-category-create:hover {
+        background: #E7D0AD;
+        color: #0A111D;
+        transform: translateY(-2px);
+    }
+
+    .btn-back-dashboard {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,.35);
+        border-radius: 9px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+        white-space: nowrap;
+    }
+
+    .btn-back-dashboard:hover {
+        background: #D6B98C;
+        border-color: #D6B98C;
+        color: #0A111D;
+    }
+
+    .category-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .category-stat {
+        background: #fff;
+        border: 1px solid #E8EDF4;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 4px 14px rgba(10,17,29,.04);
+    }
+
+    .category-stat-label {
+        color: #7B96B4;
+        font-size: 12px;
+        font-weight: 650;
+        margin-bottom: 8px;
+    }
+
+    .category-stat-value {
+        color: #0A111D;
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .category-table-card {
+        background: #fff;
+        border: 1px solid #E8EDF4;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 5px 18px rgba(10,17,29,.04);
+    }
+
+    .category-table-title {
+        color: #0A111D;
+        font-size: 17px;
+        font-weight: 750;
+        margin-bottom: 18px;
+    }
+
+    .category-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .category-table thead th {
+        background: #F1F4F8;
+        color: #53677F;
+        font-size: 11px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 14px 12px;
+        border-bottom: 1px solid #E3E9F0;
+        white-space: nowrap;
+    }
+
+    .category-table tbody td {
+        color: #34445A;
+        font-size: 13px;
+        padding: 15px 12px;
+        border-color: #EDF1F5;
+    }
+
+    .category-id {
+        color: #7B96B4;
+        font-weight: 700;
+    }
+
+    .category-name {
+        color: #0A111D;
+        font-weight: 750;
+    }
+
+    .category-description {
+        max-width: 300px;
+        color: #718096;
+    }
+
+    .status-active,
+    .status-hidden {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #E7F5EE;
+        color: #198754;
+    }
+
+    .status-hidden {
+        background: #EEF0F3;
+        color: #687386;
+    }
+
+    .btn-category-edit,
+    .btn-category-toggle {
+        border-radius: 7px;
+        padding: 7px 11px;
+        font-size: 11px;
+        font-weight: 700;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        transition: .2s;
+    }
+
+    .btn-category-edit {
+        background: #FFF3D9;
+        color: #9A6B16;
+    }
+
+    .btn-category-edit:hover {
+        background: #D6B98C;
+        color: #0A111D;
+    }
+
+    .btn-category-hide {
+        background: #FCE8E8;
+        color: #C0392B;
+    }
+
+    .btn-category-hide:hover {
+        background: #C0392B;
+        color: #fff;
+    }
+
+    .btn-category-enable {
+        background: #E4F4EB;
+        color: #198754;
+    }
+
+    .btn-category-enable:hover {
+        background: #198754;
+        color: #fff;
+    }
+
+    .category-empty {
+        text-align: center;
+        padding: 45px 15px;
+        color: #7B96B4;
+    }
+
+    .category-empty strong {
+        display: block;
+        color: #0A111D;
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    @@media (max-width: 768px) {
+        .category-header {
+            padding: 23px 20px;
+        }
+
+        .category-header h2 {
+            font-size: 21px;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions a {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .category-table-card {
+            padding: 14px;
+        }
+    }
+</style>
+
+<div class="category-page">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="category-header">
+            <div>
+                <div class="header-label">TECHMARKET ADMIN</div>
+                <h2>Quản lý danh mục sản phẩm</h2>
+                <p>Quản lý, cập nhật và kiểm soát các danh mục sản phẩm trên hệ thống.</p>
+            </div>
+
+            <div class="header-actions">
+                <a asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="btn-back-dashboard">
+                    <i class="bi bi-arrow-left"></i>
+                    Quay về trang quản trị
+                </a>
+
+                <a asp-area="Admin"
+                   asp-controller="Category"
+                   asp-action="Create"
+                   class="btn-category-create">
+                    <i class="bi bi-plus-lg"></i>
+                    Thêm danh mục
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @{
+            var categories = Model?.ToList() ?? new List<TechMarket.Models.Category>();
+            var totalCategories = categories.Count;
+            var activeCategories = categories.Count(x => x.IsActive);
+            var hiddenCategories = totalCategories - activeCategories;
+        }
+
+        <!-- STATISTICS -->
+        <div class="category-stats">
+            <div class="category-stat">
+                <div class="category-stat-label">TỔNG DANH MỤC</div>
+                <div class="category-stat-value">@totalCategories</div>
+            </div>
+
+            <div class="category-stat">
+                <div class="category-stat-label">ĐANG HOẠT ĐỘNG</div>
+                <div class="category-stat-value">@activeCategories</div>
+            </div>
+
+            <div class="category-stat">
+                <div class="category-stat-label">ĐÃ ẨN</div>
+                <div class="category-stat-value">@hiddenCategories</div>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="category-table-card">
+            <div class="category-table-title">
+                <i class="bi bi-grid-fill me-2" style="color:#D6B98C"></i>
+                Danh sách danh mục
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover category-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên danh mục</th>
+                            <th>Mô tả</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (categories.Any())
+                        {
+                            @foreach (var item in categories)
+                            {
+                                <tr>
+                                    <td class="category-id">#@item.Id</td>
+
+                                    <td>
+                                        <span class="category-name">@item.Name</span>
+                                    </td>
+
+                                    <td>
+                                        <div class="category-description">
+                                            @(string.IsNullOrWhiteSpace(item.Description)
+                                                ? "Chưa có mô tả"
+                                                : item.Description)
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="status-active">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Đang hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-hidden">
+                                                <i class="bi bi-eye-slash me-1"></i>
+                                                Đã ẩn
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @item.CreatedAt.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                            <a asp-area="Admin"
+                                               asp-controller="Category"
+                                               asp-action="Edit"
+                                               asp-route-id="@item.Id"
+                                               class="btn-category-edit">
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                Sửa
+                                            </a>
+
+                                            <form asp-area="Admin"
+                                                  asp-controller="Category"
+                                                  asp-action="ToggleStatus"
+                                                  asp-route-id="@item.Id"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn-category-toggle @(item.IsActive ? "btn-category-hide" : "btn-category-enable")">
+                                                    @if (item.IsActive)
+                                                    {
+                                                        <i class="bi bi-eye-slash me-1"></i>
+                                                        <text>Ẩn</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-check-circle me-1"></i>
+                                                        <text>Kích hoạt</text>
+                                                    }
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="category-empty">
+                                        <i class="bi bi-folder2-open fs-1 d-block mb-3"></i>
+                                        <strong>Chưa có danh mục nào</strong>
+                                        Hãy thêm danh mục đầu tiên cho cửa hàng.
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

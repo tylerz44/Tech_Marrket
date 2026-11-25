@@ -1,0 +1,84 @@
+﻿@model TechMarket.Models.ShippingAddress
+
+@{
+    ViewData["Title"] = "Chỉnh sửa địa chỉ";
+}
+
+<div class="container py-5" style="max-width:750px;">
+    <div class="bg-white rounded-4 shadow-sm p-4 p-md-5">
+
+        <h3 class="fw-bold mb-2" style="color:#0A111D;">
+            Chỉnh sửa địa chỉ
+        </h3>
+
+        <p class="text-muted mb-4">
+            Cập nhật thông tin người nhận hàng của bạn.
+        </p>
+
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="AddressName" class="form-label fw-semibold"></label>
+                <input asp-for="AddressName" class="form-control" />
+                <span asp-validation-for="AddressName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ReceiverName" class="form-label fw-semibold"></label>
+                <input asp-for="ReceiverName" class="form-control" />
+                <span asp-validation-for="ReceiverName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label fw-semibold"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label fw-semibold"></label>
+                <textarea asp-for="Address"
+                          class="form-control"
+                          rows="3"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            @if (Model.IsDefault)
+            {
+                <div class="alert alert-success py-2">
+                    Đây là địa chỉ mặc định hiện tại.
+                </div>
+            }
+            else
+            {
+                <div class="form-check mb-4">
+                    <input asp-for="IsDefault" class="form-check-input" />
+                    <label asp-for="IsDefault" class="form-check-label">
+                        Đặt làm địa chỉ mặc định
+                    </label>
+                </div>
+            }
+
+            <div class="d-flex gap-2">
+                <button type="submit"
+                        class="btn text-white px-4"
+                        style="background:#0A111D;">
+                    Lưu thay đổi
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary px-4">
+                    Quay lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

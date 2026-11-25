@@ -1,0 +1,9 @@
+@model IEnumerable<TechMarket.Models.DiscountCode>
+@{ ViewData["Title"] = "Quản lý mã giảm giá"; }
+<div class="container py-4">
+ <div class="d-flex justify-content-between align-items-center mb-4"><div><h2>Quản lý mã giảm giá</h2><p class="text-muted">Tạo và theo dõi voucher toàn hệ thống.</p></div><a asp-action="Create" class="btn btn-primary">+ Tạo mã mới</a></div>
+ @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+ <div class="table-responsive bg-white rounded shadow-sm"><table class="table table-hover align-middle mb-0"><thead><tr><th>Mã</th><th>Loại</th><th>Giá trị</th><th>Đơn tối thiểu</th><th>Lượt dùng</th><th>Thời hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+ @foreach (var x in Model) { <tr><td class="fw-bold">@x.Code</td><td>@(x.DiscountType == "PERCENT" ? "Phần trăm" : "Số tiền")</td><td>@(x.DiscountType == "PERCENT" ? x.DiscountValue + "%" : x.DiscountValue.ToString("N0") + "đ")</td><td>@x.MinOrderAmount.ToString("N0")đ</td><td>@x.UsedCount / @x.UsageLimit</td><td>@x.StartAt.ToString("dd/MM/yyyy") – @x.EndAt.ToString("dd/MM/yyyy")</td><td><span class="badge @(x.IsActive ? "bg-success" : "bg-secondary")">@(x.IsActive ? "Hoạt động" : "Tạm khóa")</span></td><td class="text-nowrap"><a asp-action="Edit" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Sửa</a><form asp-action="Toggle" method="post" class="d-inline">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"/><button class="btn btn-sm btn-outline-secondary">@(x.IsActive ? "Khóa" : "Mở")</button></form></td></tr> }
+ </tbody></table></div>
+</div>

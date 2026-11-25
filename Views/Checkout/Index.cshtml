@@ -1,0 +1,988 @@
+@model TechMarket.ViewModels.CheckoutViewModel
+@using TechMarket.Models
+
+@{
+    ViewData["Title"] = "Thanh toán";
+
+    var cartItems = ViewBag.CartItems as IEnumerable<CartItem>
+                    ?? Enumerable.Empty<CartItem>();
+
+    decimal totalAmount = ViewBag.TotalAmount != null
+        ? Convert.ToDecimal(ViewBag.TotalAmount)
+        : 0;
+
+    int totalQuantity = cartItems.Sum(x => x.Quantity);
+
+    var shippingAddresses = ViewBag.ShippingAddresses as List<ShippingAddress>
+                            ?? new List<ShippingAddress>();
+
+    var defaultAddress = shippingAddresses.FirstOrDefault(x => x.IsDefault);
+}
+
+<style>
+    :root {
+        --navy: #0A111D;
+        --blue: #132C4F;
+        --muted: #7B96B4;
+        --bg: #F5F7FA;
+        --border: #E5E9EF;
+        --text: #202A38;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    .checkout-page {
+        padding: 55px 0 90px;
+        min-height: 75vh;
+    }
+
+    .checkout-container {
+        width: 92%;
+        max-width: 1250px;
+        margin: auto;
+    }
+
+    .checkout-heading {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .checkout-eyebrow {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+
+    .checkout-heading h1 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(36px, 5vw, 52px);
+        font-weight: 400;
+        color: var(--navy);
+        margin-bottom: 12px;
+    }
+
+    .checkout-heading p {
+        color: #77808C;
+        font-size: 13px;
+    }
+
+    .checkout-steps {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 40px;
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .checkout-step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .checkout-step-number {
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .checkout-step.active {
+        color: var(--navy);
+        font-weight: 700;
+    }
+
+        .checkout-step.active .checkout-step-number {
+            background: var(--navy);
+            border-color: var(--navy);
+            color: white;
+        }
+
+    .checkout-step-line {
+        width: 45px;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .checkout-form-card,
+    .checkout-summary {
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .checkout-section {
+        padding: 28px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .checkout-section:last-child {
+            border-bottom: none;
+        }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 25px;
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        background: #F0F3F7;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .section-heading h4 {
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--navy);
+        font-size: 22px;
+        font-weight: 400;
+        margin: 0;
+    }
+
+    .section-heading p {
+        color: #87909C;
+        font-size: 11px;
+        margin: 4px 0 0;
+    }
+
+    .checkout-field {
+        margin-bottom: 21px;
+    }
+
+        .checkout-field:last-child {
+            margin-bottom: 0;
+        }
+
+    .checkout-label {
+        display: block;
+        color: var(--navy);
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 9px;
+    }
+
+    .checkout-input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 0;
+        padding: 13px 15px;
+        color: var(--navy);
+        font-size: 13px;
+        background: white;
+        outline: none;
+        transition: .2s;
+    }
+
+        .checkout-input:focus {
+            border-color: var(--muted);
+            box-shadow: 0 0 0 3px rgba(123, 150, 180, .12);
+        }
+
+        .checkout-input::placeholder {
+            color: #AAB1BA;
+        }
+
+    .checkout-validation {
+        color: #C0392B;
+        font-size: 11px;
+        margin-top: 6px;
+        display: block;
+    }
+
+    .saved-address-info {
+        background: #F7F9FC;
+        border: 1px solid var(--border);
+        padding: 14px 16px;
+        margin-bottom: 22px;
+    }
+
+        .saved-address-info a {
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .saved-address-info a:hover {
+                text-decoration: underline;
+            }
+
+    .checkout-payment-option {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border: 1px solid var(--muted);
+        padding: 18px;
+        background: #F7F9FC;
+        cursor: pointer;
+    }
+
+        .checkout-payment-option input {
+            accent-color: var(--navy);
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
+    .payment-icon {
+        width: 42px;
+        height: 42px;
+        background: white;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--blue);
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .payment-info strong {
+        display: block;
+        color: var(--navy);
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .payment-info span {
+        color: #77808C;
+        font-size: 11px;
+    }
+
+    /* ORDER SUMMARY */
+
+    .checkout-summary {
+        padding: 27px;
+        position: sticky;
+        top: 25px;
+    }
+
+        .checkout-summary h4 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--navy);
+            margin-bottom: 22px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+    .checkout-product {
+        display: flex;
+        gap: 14px;
+        padding-bottom: 18px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .product-image {
+        width: 75px;
+        height: 90px;
+        flex-shrink: 0;
+        background: #F0F2F6;
+        overflow: hidden;
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .product-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .product-name {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 16px;
+        color: var(--navy);
+        margin-bottom: 7px;
+    }
+
+    .product-variant {
+        color: #87909C;
+        font-size: 10px;
+        line-height: 1.8;
+    }
+
+    .product-price {
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 8px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: #77808C;
+        font-size: 12px;
+        margin-bottom: 17px;
+    }
+
+        .summary-row strong {
+            color: var(--navy);
+            font-weight: 600;
+            text-align: right;
+        }
+
+    .checkout-total {
+        border-top: 1px solid var(--border);
+        padding-top: 22px;
+        margin-top: 22px;
+    }
+
+    .total-label {
+        color: var(--navy);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .total-price {
+        color: var(--blue);
+        font-size: 23px;
+        font-weight: 700;
+    }
+
+    .checkout-submit {
+        width: 100%;
+        border: none;
+        background: var(--navy);
+        color: white;
+        padding: 17px 15px;
+        margin-top: 25px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        transition: .3s;
+    }
+
+        .checkout-submit:hover {
+            background: var(--blue);
+        }
+
+        .checkout-submit:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    .checkout-back {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: var(--blue);
+        text-decoration: none;
+        font-size: 11px;
+        letter-spacing: 1px;
+    }
+
+        .checkout-back:hover {
+            color: var(--muted);
+        }
+
+    .checkout-security {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: #87909C;
+        font-size: 11px;
+        line-height: 1.8;
+        text-align: center;
+    }
+
+        .checkout-security i {
+            color: var(--muted);
+            margin-right: 5px;
+        }
+
+    .empty-checkout {
+        padding: 25px 10px;
+        text-align: center;
+        color: #87909C;
+        font-size: 13px;
+    }
+
+    @@media (max-width: 992px) {
+        .checkout-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .checkout-summary {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .checkout-page {
+            padding: 35px 0 60px;
+        }
+
+        .checkout-section {
+            padding: 20px 16px;
+        }
+
+        .checkout-summary {
+            padding: 20px;
+        }
+
+        .checkout-steps {
+            gap: 8px;
+            font-size: 8px;
+        }
+
+        .checkout-step-line {
+            width: 20px;
+        }
+
+        .checkout-step {
+            gap: 5px;
+        }
+    }
+</style>
+
+<div class="checkout-page">
+    <div class="checkout-container">
+
+        <!-- TIÊU ĐỀ -->
+        <div class="checkout-heading">
+            <div class="checkout-eyebrow">Complete Your Purchase</div>
+            <h1>Checkout</h1>
+            <p>Vui lòng kiểm tra thông tin trước khi hoàn tất đơn hàng.</p>
+        </div>
+
+        <!-- CÁC BƯỚC THANH TOÁN -->
+        <div class="checkout-steps">
+            <div class="checkout-step">
+                <span class="checkout-step-number">
+                    <i class="bi bi-check"></i>
+                </span>
+                Giỏ hàng
+            </div>
+
+            <span class="checkout-step-line"></span>
+
+            <div class="checkout-step active">
+                <span class="checkout-step-number">2</span>
+                Thanh toán
+            </div>
+
+            <span class="checkout-step-line"></span>
+
+            <div class="checkout-step">
+                <span class="checkout-step-number">3</span>
+                Hoàn tất
+            </div>
+        </div>
+
+        <!-- FORM THANH TOÁN -->
+        <form asp-controller="Checkout"
+              asp-action="PlaceOrder"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger mb-4">
+            </div>
+
+            <div class="checkout-layout">
+
+                <!-- THÔNG TIN NGƯỜI NHẬN -->
+                <div class="checkout-form-card">
+
+                    <section class="checkout-section">
+
+                        <div class="section-heading">
+                            <div class="section-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+
+                            <div>
+                                <h4>Thông tin người nhận</h4>
+                                <p>Thông tin giao hàng của bạn</p>
+                            </div>
+                        </div>
+
+                        <!-- CHỌN ĐỊA CHỈ ĐÃ LƯU -->
+                        @if (shippingAddresses.Any())
+                        {
+                            <div class="checkout-field">
+                                <label for="savedAddressSelect"
+                                       class="checkout-label">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    Chọn địa chỉ đã lưu
+                                </label>
+
+                                <select id="savedAddressSelect"
+                                        class="checkout-input">
+
+                                    <option value="">
+                                        -- Nhập địa chỉ giao hàng khác --
+                                    </option>
+
+                                    @foreach (var address in shippingAddresses)
+                                    {
+                                        if (address.IsDefault)
+                                        {
+                                            <option value="@address.Id"
+                                                    data-name="@address.ReceiverName"
+                                                    data-phone="@address.Phone"
+                                                    data-address="@address.Address"
+                                                    selected>
+                                                @address.AddressName - @address.ReceiverName (Mặc định)
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@address.Id"
+                                                    data-name="@address.ReceiverName"
+                                                    data-phone="@address.Phone"
+                                                    data-address="@address.Address">
+                                                @address.AddressName - @address.ReceiverName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+
+                                <small class="text-muted d-block mt-2">
+                                    Chọn địa chỉ để tự động điền thông tin người nhận.
+                                </small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="saved-address-info">
+                                <div class="small text-muted mb-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Bạn chưa có địa chỉ giao hàng được lưu.
+                                </div>
+
+                                <a asp-controller="ShippingAddress"
+                                   asp-action="Create">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Thêm địa chỉ vào sổ địa chỉ
+                                </a>
+                            </div>
+                        }
+
+                        <!-- TÊN NGƯỜI NHẬN -->
+                        <div class="checkout-field">
+                            <label asp-for="ReceiverName"
+                                   class="checkout-label">
+                                Họ và tên người nhận
+                            </label>
+
+                            <input asp-for="ReceiverName"
+                                   class="checkout-input"
+                                   placeholder="Nhập họ và tên người nhận" />
+
+                            <span asp-validation-for="ReceiverName"
+                                  class="checkout-validation"></span>
+                        </div>
+
+                        <!-- SỐ ĐIỆN THOẠI -->
+                        <div class="checkout-field">
+                            <label asp-for="Phone"
+                                   class="checkout-label">
+                                Số điện thoại
+                            </label>
+
+                            <input asp-for="Phone"
+                                   class="checkout-input"
+                                   placeholder="Nhập số điện thoại" />
+
+                            <span asp-validation-for="Phone"
+                                  class="checkout-validation"></span>
+                        </div>
+
+                        <!-- ĐỊA CHỈ GIAO HÀNG -->
+                        <div class="checkout-field">
+                            <label asp-for="ShippingAddress"
+                                   class="checkout-label">
+                                Địa chỉ giao hàng
+                            </label>
+
+                            <textarea asp-for="ShippingAddress"
+                                      class="checkout-input"
+                                      rows="3"
+                                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+
+                            <span asp-validation-for="ShippingAddress"
+                                  class="checkout-validation"></span>
+                        </div>
+
+                        <!-- GHI CHÚ -->
+                        <div class="checkout-field">
+                            <label asp-for="Note"
+                                   class="checkout-label">
+                                Ghi chú đơn hàng
+                                <span class="text-muted fw-normal">
+                                    (Không bắt buộc)
+                                </span>
+                            </label>
+
+                            <textarea asp-for="Note"
+                                      class="checkout-input"
+                                      rows="3"
+                                      placeholder="Ví dụ: Giao hàng vào buổi chiều..."></textarea>
+
+                            <span asp-validation-for="Note"
+                                  class="checkout-validation"></span>
+                        </div>
+
+                    </section>
+
+
+                    <section class="checkout-section">
+                        <div class="section-heading">
+                            <div class="section-icon"><i class="bi bi-ticket-perforated"></i></div>
+                            <div><h4>Mã giảm giá</h4><p>Chọn mã bạn đã nhận trong kho voucher</p></div>
+                        </div>
+                        <div class="checkout-field">
+                            <label asp-for="CouponCode" class="checkout-label">Mã voucher</label>
+                            <select asp-for="CouponCode" class="checkout-input">
+                                <option value="">-- Không sử dụng mã giảm giá --</option>
+                                @if (ViewBag.UserCoupons is IEnumerable<DiscountCode> coupons)
+                                {
+                                    foreach (var coupon in coupons)
+                                    {
+                                        <option value="@coupon.Code"
+                                                data-type="@coupon.DiscountType"
+                                                data-value="@coupon.DiscountValue.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                data-max="@coupon.MaxDiscountAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                data-min="@coupon.MinOrderAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                            @coupon.Code - @(coupon.DiscountType == "PERCENT" ? coupon.DiscountValue + "%" : coupon.DiscountValue.ToString("N0") + "đ") - Đơn tối thiểu @coupon.MinOrderAmount.ToString("N0")đ
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="CouponCode" class="checkout-validation"></span>
+                            <small class="text-muted">Chưa có mã? <a asp-controller="Coupon" asp-action="Index">Đến kho mã giảm giá</a></small>
+                        </div>
+                    </section>
+
+                    <section class="checkout-section">
+
+                        <div class="section-heading">
+                            <div class="section-icon">
+                                <i class="bi bi-credit-card"></i>
+                            </div>
+                            <div>
+                                <h4>Phương thức thanh toán</h4>
+                                <p>Chọn cách thanh toán phù hợp với bạn</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+
+                            <label class="checkout-payment-option">
+                                <input asp-for="PaymentMethod"
+                                       type="radio"
+                                       value="COD" />
+
+                                <span class="payment-icon">
+                                    <i class="bi bi-cash-coin"></i>
+                                </span>
+
+                                <span class="payment-info">
+                                    <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                    <span>Thanh toán trực tiếp khi nhận sản phẩm.</span>
+                                </span>
+                            </label>
+
+                            <label class="checkout-payment-option">
+                                <input asp-for="PaymentMethod"
+                                       type="radio"
+                                       value="DEMOQR" />
+
+                                <span class="payment-icon">
+                                    <i class="bi bi-qr-code-scan"></i>
+                                </span>
+
+                                <span class="payment-info">
+                                    <strong>Quét mã QR Demo</strong>
+                                    <span>Mã QR mô phỏng, không phát sinh giao dịch tiền thật.</span>
+                                </span>
+                            </label>
+
+                            <label class="checkout-payment-option">
+                                <input asp-for="PaymentMethod"
+                                       type="radio"
+                                       value="DEMOBANK" />
+
+                                <span class="payment-icon">
+                                    <i class="bi bi-bank"></i>
+                                </span>
+
+                                <span class="payment-info">
+                                    <strong>Ngân hàng Demo</strong>
+                                    <span>Mô phỏng thanh toán qua tài khoản ngân hàng.</span>
+                                </span>
+                            </label>
+
+                            <label class="checkout-payment-option">
+                                <input asp-for="PaymentMethod"
+                                       type="radio"
+                                       value="DEMOCARD" />
+
+                                <span class="payment-icon">
+                                    <i class="bi bi-credit-card-2-front"></i>
+                                </span>
+
+                                <span class="payment-info">
+                                    <strong>Thẻ quốc tế Demo</strong>
+                                    <span>Mô phỏng thanh toán thẻ, không nhập thông tin thẻ thật.</span>
+                                </span>
+                            </label>
+
+                        </div>
+
+                        <span asp-validation-for="PaymentMethod"
+                              class="checkout-validation"></span>
+
+                    </section>
+
+
+                <!-- TÓM TẮT ĐƠN HÀNG -->
+                <aside class="checkout-summary">
+
+                    <h4>Đơn hàng của bạn</h4>
+
+                    @if (cartItems.Any())
+                    {
+                        @foreach (var item in cartItems)
+                        {
+                            var product = item.Product;
+                            var variant = item.ProductVariant;
+                            var price = product?.Price ?? 0;
+
+                            <div class="checkout-product">
+
+                                <div class="product-image">
+                                    @if (!string.IsNullOrEmpty(product?.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl"
+                                             alt="@product.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex h-100 align-items-center justify-content-center">
+                                            <i class="bi bi-image fs-3 text-secondary"></i>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="product-info">
+
+                                    <div class="product-name">
+                                        @(product?.Name ?? "Sản phẩm")
+                                    </div>
+
+                                    <div class="product-variant">
+                                        Size: @(variant?.Size ?? "N/A")
+                                        <br />
+                                        Màu: @(variant?.Color ?? "N/A")
+                                        <br />
+                                        Số lượng: @item.Quantity
+                                    </div>
+
+                                    <div class="product-price">
+                                        @((price * item.Quantity).ToString("N0")) ₫
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-checkout">
+                            Giỏ hàng của bạn hiện đang trống.
+                        </div>
+                    }
+
+                    <div class="summary-row">
+                        <span>Số lượng sản phẩm</span>
+                        <strong>@totalQuantity</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Tạm tính</span>
+                        <strong>@totalAmount.ToString("N0") ₫</strong>
+                    </div>
+
+                    <div class="summary-row text-success" id="discountSummaryRow" style="display:none;">
+                        <span>Giảm giá (<span id="discountCodeLabel"></span>)</span>
+                        <strong id="discountAmountLabel">-0 ₫</strong>
+                    </div>
+                    <div class="small text-danger mb-2" id="couponMessage" aria-live="polite"></div>
+
+                    <div class="summary-row">
+                        <span>Phí vận chuyển</span>
+                        <strong>Được tính khi xử lý đơn</strong>
+                    </div>
+
+                    <div class="checkout-total">
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <span class="total-label">
+                                Tổng thanh toán
+                            </span>
+
+                            <span class="total-price" id="checkoutFinalTotal"
+                                  data-subtotal="@totalAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                @totalAmount.ToString("N0") ₫
+                            </span>
+
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="checkout-submit"
+                            disabled="@(!cartItems.Any())">
+
+                        Đặt hàng ngay
+                        <i class="bi bi-arrow-right ms-2"></i>
+
+                    </button>
+
+                    <a asp-controller="Cart"
+                       asp-action="Index"
+                       class="checkout-back">
+
+                        <i class="bi bi-arrow-left"></i>
+                        QUAY LẠI GIỎ HÀNG
+
+                    </a>
+
+                    <div class="checkout-security">
+                        <i class="bi bi-shield-check"></i>
+                        Thông tin đơn hàng được bảo mật.
+                    </div>
+
+                </aside>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const addressSelect =
+                document.getElementById("savedAddressSelect");
+
+            const receiverName =
+                document.getElementById("ReceiverName");
+
+            const phone =
+                document.getElementById("Phone");
+
+            const shippingAddress =
+                document.getElementById("ShippingAddress");
+
+            if (!addressSelect) {
+                return;
+            }
+
+            addressSelect.addEventListener("change", function () {
+
+                const selectedOption =
+                    this.options[this.selectedIndex];
+
+                // Chọn nhập địa chỉ mới
+                if (this.value === "") {
+                    receiverName.value = "";
+                    phone.value = "";
+                    shippingAddress.value = "";
+                    return;
+                }
+
+                // Tự động điền thông tin từ địa chỉ đã chọn
+                receiverName.value =
+                    selectedOption.dataset.name || "";
+
+                phone.value =
+                    selectedOption.dataset.phone || "";
+
+                shippingAddress.value =
+                    selectedOption.dataset.address || "";
+
+            });
+
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const couponSelect = document.getElementById("CouponCode");
+            const totalElement = document.getElementById("checkoutFinalTotal");
+            const discountRow = document.getElementById("discountSummaryRow");
+            const discountLabel = document.getElementById("discountAmountLabel");
+            const codeLabel = document.getElementById("discountCodeLabel");
+            const message = document.getElementById("couponMessage");
+            if (!couponSelect || !totalElement) return;
+
+            const subtotal = Number(totalElement.dataset.subtotal || 0);
+            const money = value => new Intl.NumberFormat("vi-VN").format(value) + " ₫";
+
+            function updateCouponPreview() {
+                const option = couponSelect.options[couponSelect.selectedIndex];
+                const code = couponSelect.value;
+                let discount = 0;
+                message.textContent = "";
+                if (code && option.dataset.type) {
+                    const min = Number(option.dataset.min || 0);
+                    const value = Number(option.dataset.value || 0);
+                    const max = Number(option.dataset.max || 0);
+                    if (subtotal < min) {
+                        message.textContent = "Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã này.";
+                    } else {
+                        discount = option.dataset.type === "PERCENT" ? subtotal * value / 100 : value;
+                        if (option.dataset.type === "PERCENT" && max > 0) discount = Math.min(discount, max);
+                        discount = Math.min(subtotal, Math.round(discount));
+                    }
+                }
+                discountRow.style.display = discount > 0 ? "flex" : "none";
+                discountLabel.textContent = "-" + money(discount);
+                codeLabel.textContent = code;
+                totalElement.textContent = money(subtotal - discount);
+            }
+            couponSelect.addEventListener("change", updateCouponPreview);
+            updateCouponPreview();
+        });
+    </script>
+}

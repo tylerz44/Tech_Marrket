@@ -1,0 +1,877 @@
+@using TechMarket.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - TechMarket</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <style>
+
+        :root {
+            --tm-bg: #F7F8F3;
+            --tm-white: #FFFFFF;
+            --tm-cream: #F0F1E9;
+            --tm-sage: #A8B9A0;
+            --tm-sage-light: #E4EADF;
+            --tm-forest: #29483B;
+            --tm-dark: #1C3028;
+            --tm-gold: #C7A875;
+            --tm-text: #35443B;
+            --tm-muted: #849087;
+            --tm-border: #DCE4D9;
+        }
+
+        body {
+            background: var(--tm-bg);
+            color: var(--tm-text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .tm-navbar {
+            background: #FFFFFF;
+            min-height: 84px;
+            padding: 0;
+            border-bottom: 2px solid #DCE4D9;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            box-shadow: 0 5px 22px rgba(28, 48, 40, .10);
+        }
+
+            .tm-navbar .container {
+                min-height: 84px;
+            }
+
+        /* LOGO */
+
+        .tm-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: #29483B !important;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            margin-right: 40px;
+            transition: .25s;
+        }
+
+        .tm-brand-icon {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            background: #29483B;
+            color: #E4D0A8;
+            font-size: 22px;
+            transition: .25s;
+        }
+
+        .tm-brand:hover {
+            color: #A7824F !important;
+        }
+
+            .tm-brand:hover .tm-brand-icon {
+                background: #C7A875;
+                color: #FFFFFF;
+                transform: translateY(-2px);
+            }
+
+        /* MAIN MENU */
+
+        .tm-navbar .navbar-nav {
+            align-items: center;
+        }
+
+        .tm-navbar .nav-link {
+            position: relative;
+            color: #29483B;
+            font-size: 13px;
+            font-weight: 750;
+            padding: 32px 15px !important;
+            transition: .25s;
+            white-space: nowrap;
+        }
+
+            .tm-navbar .nav-link i {
+                color: #78917C;
+                font-size: 15px;
+                transition: .25s;
+            }
+
+            .tm-navbar .nav-link::after {
+                content: "";
+                position: absolute;
+                left: 15px;
+                right: 15px;
+                bottom: 21px;
+                height: 3px;
+                border-radius: 5px;
+                background: #C7A875;
+                transform: scaleX(0);
+                transform-origin: center;
+                transition: transform .25s;
+            }
+
+            .tm-navbar .nav-link:hover,
+            .tm-navbar .nav-link:focus {
+                color: #A7824F;
+            }
+
+                .tm-navbar .nav-link:hover i {
+                    color: #C7A875;
+                }
+
+                .tm-navbar .nav-link:hover::after {
+                    transform: scaleX(1);
+                }
+
+        /* RIGHT ACTIONS */
+
+        .tm-nav-actions {
+            gap: 9px;
+        }
+
+        .tm-action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #29483B;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 10px;
+            white-space: nowrap;
+            transition: .2s;
+        }
+
+            .tm-action-link i {
+                color: #29483B;
+                font-size: 17px;
+            }
+
+            .tm-action-link:hover {
+                color: #A7824F;
+            }
+
+        /* BUTTONS */
+
+        .tm-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 7px;
+            padding: 11px 17px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            white-space: nowrap;
+            transition: .25s;
+        }
+
+            .tm-btn i {
+                font-size: 15px;
+            }
+
+        .tm-btn-primary {
+            background: #29483B;
+            color: #FFFFFF;
+            border: 1px solid #29483B;
+            box-shadow: 0 4px 10px rgba(41, 72, 59, .13);
+        }
+
+            .tm-btn-primary:hover {
+                background: #1C3028;
+                color: #FFFFFF;
+                border-color: #1C3028;
+                transform: translateY(-2px);
+                box-shadow: 0 7px 15px rgba(41, 72, 59, .2);
+            }
+
+        .tm-btn-gold {
+            background: #C7A875;
+            color: #FFFFFF;
+            border: 1px solid #C7A875;
+            box-shadow: 0 4px 10px rgba(199, 168, 117, .18);
+        }
+
+            .tm-btn-gold:hover {
+                background: #AE8B57;
+                border-color: #AE8B57;
+                color: #FFFFFF;
+                transform: translateY(-2px);
+            }
+
+        .tm-btn-outline {
+            background: #FFFFFF;
+            color: #29483B;
+            border: 1px solid #A8B9A0;
+        }
+
+            .tm-btn-outline:hover {
+                background: #E4EADF;
+                border-color: #78917C;
+                color: #1C3028;
+            }
+
+        .tm-btn-admin {
+            background: #A34B4B;
+            color: #FFFFFF;
+            border: 1px solid #A34B4B;
+        }
+
+            .tm-btn-admin:hover {
+                background: #853A3A;
+                border-color: #853A3A;
+                color: #FFFFFF;
+            }
+
+        /* ACCOUNT */
+
+        .tm-account {
+            margin-left: 7px;
+        }
+
+        .tm-account-toggle {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: #E4EADF;
+            border: 1px solid #C9D5C4;
+            border-radius: 30px;
+            padding: 7px 13px 7px 8px;
+            color: #29483B;
+            font-size: 12px;
+            font-weight: 750;
+            transition: .25s;
+            white-space: nowrap;
+        }
+
+            .tm-account-toggle:hover,
+            .tm-account-toggle:focus {
+                background: #D5E0D0;
+                border-color: #A8B9A0;
+                color: #1C3028;
+                box-shadow: none;
+            }
+
+        .tm-account-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #29483B;
+            color: #FFFFFF;
+            font-size: 17px;
+        }
+
+        .tm-account-name {
+            display: inline-block;
+            max-width: 125px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        .tm-account-toggle::after {
+            margin-left: 3px;
+        }
+
+        /* DROPDOWN */
+
+        .tm-dropdown {
+            min-width: 245px;
+            background: #FFFFFF;
+            border: 1px solid #DCE4D9;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 13px !important;
+            box-shadow: 0 15px 40px rgba(28, 48, 40, .16);
+            animation: tmDropdown .2s ease;
+        }
+
+        @@keyframes tmDropdown {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tm-dropdown .dropdown-header {
+            color: #A7824F;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 10px 12px;
+            text-transform: uppercase;
+        }
+
+        .tm-dropdown .dropdown-item {
+            color: #35443B;
+            font-size: 12px;
+            font-weight: 650;
+            padding: 11px 12px;
+            border-radius: 7px;
+            transition: .2s;
+        }
+
+            .tm-dropdown .dropdown-item i {
+                color: #29483B;
+                font-size: 15px;
+                margin-right: 10px;
+            }
+
+            .tm-dropdown .dropdown-item:hover {
+                background: #E4EADF;
+                color: #29483B;
+            }
+
+        .tm-dropdown .dropdown-divider {
+            border-color: #E7EAE3;
+            margin: 7px 0;
+        }
+
+        .tm-dropdown-logout {
+            color: #B34F4F !important;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+        }
+
+            .tm-dropdown-logout i {
+                color: #B34F4F !important;
+            }
+
+            .tm-dropdown-logout:hover {
+                background: #FBEFEF !important;
+                color: #A33D3D !important;
+            }
+
+        .tm-user-email {
+            display: block;
+            padding: 5px 12px 10px;
+            color: #849087;
+            font-size: 11px;
+            overflow-wrap: anywhere;
+        }
+
+        /* CART */
+
+        .tm-cart-item {
+            display: flex;
+            align-items: center;
+            margin-right: 5px;
+        }
+
+            .tm-cart-item a {
+                color: #29483B;
+                text-decoration: none;
+            }
+
+        /* MOBILE TOGGLER */
+
+        .tm-navbar .navbar-toggler {
+            border: 1px solid #A8B9A0;
+            border-radius: 8px;
+            padding: 7px 10px;
+        }
+
+            .tm-navbar .navbar-toggler:focus {
+                box-shadow: 0 0 0 3px rgba(168, 185, 160, .25);
+            }
+
+        .tm-navbar .navbar-toggler-icon {
+            filter: invert(25%) sepia(15%) saturate(1000%) hue-rotate(90deg);
+        }
+
+        /* FOOTER */
+
+        .tm-footer {
+            background: #20392E;
+            color: white;
+            padding: 55px 0 25px;
+            margin-top: 0;
+        }
+
+        .tm-footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+
+            .tm-footer-brand i {
+                color: #D9BD8A;
+                font-size: 24px;
+            }
+
+        .tm-footer-description {
+            color: #D0DCCF;
+            font-size: 12px;
+            line-height: 1.9;
+            max-width: 420px;
+            margin: auto;
+        }
+
+        .tm-footer-divider {
+            border-color: rgba(255,255,255,.2);
+            margin: 28px 0 20px;
+        }
+
+        .tm-footer small {
+            color: #C1CEC2;
+            font-size: 11px;
+        }
+
+        .tm-footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 17px;
+            margin-top: 20px;
+        }
+
+            .tm-footer-social a {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #FFFFFF;
+                background: rgba(255,255,255,.13);
+                border-radius: 50%;
+                text-decoration: none;
+                transition: .2s;
+            }
+
+                .tm-footer-social a:hover {
+                    background: #C7A875;
+                    color: #FFFFFF;
+                    transform: translateY(-3px);
+                }
+
+        /* RESPONSIVE */
+
+        @@media (max-width: 1199px) {
+            .tm-brand {
+                font-size: 21px;
+                margin-right: 15px;
+            }
+
+            .tm-navbar .nav-link {
+                padding-left: 9px !important;
+                padding-right: 9px !important;
+                font-size: 12px;
+            }
+
+            .tm-btn {
+                padding: 10px 11px;
+                font-size: 10px;
+            }
+        }
+
+        @@media (max-width: 991px) {
+            .tm-navbar {
+                padding: 10px 0;
+            }
+
+                .tm-navbar .container {
+                    min-height: auto;
+                }
+
+                .tm-navbar .navbar-collapse {
+                    padding: 15px 0 8px;
+                    border-top: 1px solid #DCE4D9;
+                    margin-top: 13px;
+                }
+
+                .tm-navbar .navbar-nav {
+                    align-items: stretch;
+                }
+
+                .tm-navbar .nav-link {
+                    padding: 12px 10px !important;
+                    border-radius: 6px;
+                }
+
+                    .tm-navbar .nav-link:hover {
+                        background: #E4EADF;
+                    }
+
+                    .tm-navbar .nav-link::after {
+                        display: none;
+                    }
+
+            .tm-nav-actions {
+                align-items: stretch !important;
+                gap: 7px;
+                margin-top: 10px;
+            }
+
+                .tm-nav-actions .nav-item {
+                    width: 100%;
+                }
+
+            .tm-btn {
+                justify-content: center;
+                width: 100%;
+                margin: 3px 0;
+            }
+
+            .tm-cart-item {
+                padding: 5px 10px;
+            }
+
+            .tm-account {
+                margin: 7px 0;
+            }
+
+            .tm-account-toggle {
+                width: 100%;
+                justify-content: flex-start;
+                border-radius: 8px;
+            }
+
+            .tm-dropdown {
+                width: 100%;
+                margin-top: 5px !important;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .tm-brand {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+
+            .tm-brand-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 19px;
+            }
+
+            .tm-footer {
+                padding: 40px 0 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header>
+        <nav class="navbar navbar-expand-lg tm-navbar">
+            <div class="container">
+
+                <!-- LOGO -->
+                <a class="navbar-brand tm-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="tm-brand-icon">
+                        <i class="bi bi-shop-window"></i>
+                    </span>
+
+                    <span>TECHMARKET</span>
+                </a>
+
+                <!-- MOBILE BUTTON -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Mở menu">
+
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <!-- MENU LEFT -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i>
+                                Trang chủ
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Product"
+                               asp-action="Index">
+                                <i class="bi bi-grid me-1"></i>
+                                Sản phẩm
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <!-- MENU RIGHT -->
+                    <ul class="navbar-nav tm-nav-actions align-items-lg-center">
+
+                        @if (SignInManager.IsSignedIn(User))
+
+                        {
+                            @if (User.IsInRole("Admin"))
+
+                            {
+                                <li class="nav-item me-lg-1">
+                                    <a class="btn tm-btn tm-btn-admin"
+                                       asp-area="Admin"
+                                       asp-controller="Dashboard"
+                                       asp-action="Index">
+                                        <i class="bi bi-speedometer2"></i>
+                                        Quản trị
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("StoreOwner"))
+
+                            {
+                                <li class="nav-item me-lg-1">
+                                    <a class="btn tm-btn tm-btn-gold"
+                                       asp-area="Store"
+                                       asp-controller="Dashboard"
+                                       asp-action="Index">
+                                        <i class="bi bi-shop"></i>
+                                        Cửa hàng
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Customer"))
+
+                            {
+                                <li class="nav-item me-lg-1">
+                                    <a class="btn tm-btn tm-btn-outline"
+                                       asp-area=""
+                                       asp-controller="StoreRegistration"
+                                       asp-action="Create">
+                                        <i class="bi bi-shop-window"></i>
+                                        Mở cửa hàng
+                                    </a>
+                                </li>
+
+                                <li class="nav-item tm-cart-item">
+                                    @await Component.InvokeAsync("CartSummary")
+                                </li>
+                            }
+
+                            <!-- ACCOUNT -->
+                            <li class="nav-item dropdown tm-account">
+
+                                <button class="tm-account-toggle dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+
+                                    <span class="tm-account-icon">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+
+                                    <span class="tm-account-name">
+                                        @(User.Identity?.Name ?? "Người dùng")
+                                    </span>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end tm-dropdown">
+
+                                    <li>
+                                        <div class="dropdown-header">
+                                            Tài khoản của tôi
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <span class="tm-user-email">
+                                            @(User.Identity?.Name ?? "Người dùng")
+                                        </span>
+                                    </li>
+
+                                    @if (User.IsInRole("Customer"))
+
+                                    {
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="OrderHistory"
+                                               asp-action="Index">
+                                                <i class="bi bi-clock-history"></i>
+                                                Lịch sử mua hàng
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Coupon"
+                                               asp-action="Index">
+                                                <i class="bi bi-ticket-perforated"></i>
+                                                Kho mã giảm giá
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Coupon"
+                                               asp-action="MyCoupons">
+                                                <i class="bi bi-ticket-detailed"></i>
+                                                Mã giảm giá của tôi
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="ShippingAddress"
+                                               asp-action="Index">
+                                                <i class="bi bi-geo-alt"></i>
+                                                Địa chỉ
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+
+                                    <li>
+                                        <form asp-area=""
+                                              asp-controller="Account"
+                                              asp-action="Logout"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="dropdown-item tm-dropdown-logout">
+                                                <i class="bi bi-box-arrow-right"></i>
+                                                Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        else
+
+                        {
+                            <li class="nav-item me-lg-1">
+                                <a class="btn tm-btn tm-btn-outline"
+                                   asp-controller="Account"
+                                   asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                    Đăng nhập
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="btn tm-btn tm-btn-primary"
+                                   asp-controller="Account"
+                                   asp-action="Register">
+                                    <i class="bi bi-person-plus"></i>
+                                    Đăng ký
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="tm-footer text-center">
+        <div class="container">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="tm-footer-brand">
+                <i class="bi bi-shop-window"></i>
+                TECHMARKET
+            </a>
+
+            <p class="tm-footer-description">
+                Khám phá phong cách riêng của bạn.
+                Thời trang hiện đại, chất lượng và tinh tế
+                dành cho những lựa chọn mỗi ngày.
+            </p>
+
+            <div class="tm-footer-social">
+                <a href="#" aria-label="Facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+
+                <a href="#" aria-label="Instagram">
+                    <i class="bi bi-instagram"></i>
+                </a>
+
+                <a href="#" aria-label="TikTok">
+                    <i class="bi bi-tiktok"></i>
+                </a>
+            </div>
+
+            <hr class="tm-footer-divider" />
+
+            <small>
+                © 2026 TechMarket. All rights reserved.
+            </small>
+
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

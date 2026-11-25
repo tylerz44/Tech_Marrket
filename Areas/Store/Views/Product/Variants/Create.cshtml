@@ -1,0 +1,379 @@
+﻿@model TechMarket.ViewModels.ProductVariantViewModel
+
+@{
+    ViewData["Title"] = "Thêm biến thể";
+}
+
+<style>
+    .variant-form-page {
+        padding: 25px 0 45px;
+    }
+
+    .variant-form-hero {
+        background: linear-gradient(120deg, #172554, #2563eb);
+        color: white;
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+    }
+
+        .variant-form-hero h2 {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .variant-form-hero p {
+            color: rgba(255,255,255,.8);
+            margin-bottom: 0;
+        }
+
+    .variant-form-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,.04);
+        margin-bottom: 22px;
+    }
+
+    .variant-form-card-header {
+        padding: 18px 22px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .variant-form-card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+    .variant-form-card-body {
+        padding: 25px;
+    }
+
+    .variant-form-page .form-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .variant-form-page .form-control,
+    .variant-form-page .form-select {
+        border-radius: 9px;
+        padding: 11px 13px;
+        border-color: #dbe2ea;
+    }
+
+        .variant-form-page .form-control:focus,
+        .variant-form-page .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+        }
+
+    .variant-hint {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 6px;
+    }
+
+    .variant-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 22px;
+    }
+
+    .variant-info-icon {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dbeafe;
+        color: #2563eb;
+        border-radius: 10px;
+        font-size: 20px;
+    }
+
+    .variant-form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+        .variant-form-actions .btn {
+            border-radius: 9px;
+            padding: 10px 18px;
+            font-weight: 600;
+        }
+
+    @@media (max-width: 768px) {
+        .variant-form-hero {
+            padding: 22px;
+        }
+
+        .variant-form-card-body {
+            padding: 18px;
+        }
+
+        .variant-form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .variant-form-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="container-fluid variant-form-page">
+
+    <!-- HEADER -->
+    <div class="variant-form-hero">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+                <span class="badge bg-light text-primary mb-2">
+                    <i class="bi bi-shop"></i>
+                    QUẢN LÝ CỬA HÀNG
+                </span>
+
+                <h2>
+                    <i class="bi bi-plus-circle"></i>
+                    Thêm biến thể sản phẩm
+                </h2>
+
+                <p>
+                    Tạo mã SKU, kích cỡ, màu sắc và số lượng cho từng phiên bản sản phẩm.
+                </p>
+
+                <p class="mt-2">
+                    Sản phẩm:
+                    <strong>@ViewBag.ProductName</strong>
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a asp-area="Store"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="btn btn-outline-light">
+                    <i class="bi bi-house-door"></i>
+                    Dashboard
+                </a>
+
+                <a asp-area="Store"
+                   asp-controller="Product"
+                   asp-action="Variants"
+                   asp-route-productId="@Model.ProductId"
+                   class="btn btn-warning">
+                    <i class="bi bi-arrow-left"></i>
+                    Danh sách biến thể
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <form asp-area="Store"
+          asp-controller="Product"
+          asp-action="CreateVariant"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="ProductId" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <!-- THÔNG TIN BIẾN THỂ -->
+        <div class="variant-form-card">
+
+            <div class="variant-form-card-header">
+                <h5>
+                    <i class="bi bi-tags text-primary me-2"></i>
+                    Thông tin biến thể
+                </h5>
+            </div>
+
+            <div class="variant-form-card-body">
+
+                <div class="variant-info">
+                    <div class="variant-info-icon">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+
+                    <div>
+                        <strong>Thông tin mã SKU</strong>
+                        <div class="small text-muted">
+                            SKU là mã riêng để phân biệt từng biến thể sản phẩm.
+                            Ví dụ: AT001-XL-TRANG.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="SKU" class="form-label">
+                        Mã SKU
+                        <span class="text-danger">*</span>
+                    </label>
+
+                    <input asp-for="SKU"
+                           class="form-control"
+                           placeholder="Ví dụ: AT001-XL-TRANG" />
+
+                    <span asp-validation-for="SKU"
+                          class="text-danger small"></span>
+
+                    <div class="variant-hint">
+                        Nhập mã SKU không trùng với các biến thể khác.
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Size" class="form-label">
+                            Kích cỡ
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select asp-for="Size" class="form-select">
+                            <option value="">-- Chọn kích cỡ --</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+
+                        <span asp-validation-for="Size"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Color" class="form-label">
+                            Màu sắc
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select asp-for="Color" class="form-select">
+                            <option value="">-- Chọn màu sắc --</option>
+                            <option value="Trắng">Trắng</option>
+                            <option value="Đen">Đen</option>
+                            <option value="Xanh">Xanh</option>
+                            <option value="Đỏ">Đỏ</option>
+                            <option value="Xám">Xám</option>
+                        </select>
+
+                        <span asp-validation-for="Color"
+                              class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TỒN KHO -->
+        <div class="variant-form-card">
+
+            <div class="variant-form-card-header">
+                <h5>
+                    <i class="bi bi-box-seam text-primary me-2"></i>
+                    Quản lý tồn kho
+                </h5>
+            </div>
+
+            <div class="variant-form-card-body">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Quantity" class="form-label">
+                            Số lượng tồn kho
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="input-group">
+                            <input asp-for="Quantity"
+                                   type="number"
+                                   min="0"
+                                   class="form-control"
+                                   placeholder="Nhập số lượng" />
+
+                            <span class="input-group-text">
+                                Sản phẩm
+                            </span>
+                        </div>
+
+                        <span asp-validation-for="Quantity"
+                              class="text-danger small"></span>
+
+                        <div class="variant-hint">
+                            Nhập số lượng sản phẩm hiện có của biến thể này.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Trạng thái kinh doanh</label>
+
+                        <div class="form-check form-switch mt-2">
+                            <input asp-for="IsActive"
+                                   class="form-check-input"
+                                   role="switch" />
+
+                            <label asp-for="IsActive"
+                                   class="form-check-label fw-semibold">
+                                Đang kinh doanh
+                            </label>
+                        </div>
+
+                        <div class="variant-hint">
+                            Bật để biến thể được phép hiển thị và kinh doanh.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- NÚT THAO TÁC -->
+        <div class="variant-form-actions">
+
+            <a asp-area="Store"
+               asp-controller="Product"
+               asp-action="Variants"
+               asp-route-productId="@Model.ProductId"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Hủy và quay lại
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i>
+                Lưu biến thể
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

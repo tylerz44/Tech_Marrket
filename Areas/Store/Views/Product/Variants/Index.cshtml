@@ -1,0 +1,775 @@
+﻿@model IEnumerable<TechMarket.Models.ProductVariant>
+
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Quản lý biến thể";
+
+    var product = ViewBag.Product as TechMarket.Models.Product;
+    var variants = Model?.ToList() ?? new List<TechMarket.Models.ProductVariant>();
+
+    int totalVariants = variants.Count;
+    int activeVariants = variants.Count(v => v.IsActive);
+    int hiddenVariants = variants.Count(v => !v.IsActive);
+    int totalStock = variants.Where(v => v.IsActive).Sum(v => v.Quantity);
+}
+
+<style>
+    .tm-variant-page {
+        --tm-navy: #0A111D;
+        --tm-blue: #132C4F;
+        --tm-muted: #7B96B4;
+        --tm-gold: #D6B98C;
+        --tm-bg: #F8F9FC;
+        --tm-border: #E6EAF0;
+        background: var(--tm-bg);
+        min-height: 80vh;
+        padding: 30px 0 50px;
+    }
+
+        .tm-variant-page .tm-hero {
+            background: linear-gradient(125deg, #0A111D, #18365C);
+            color: #fff;
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 30px rgba(10, 17, 29, .12);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .tm-variant-page .tm-hero::after {
+                content: "";
+                position: absolute;
+                width: 240px;
+                height: 240px;
+                border: 1px solid rgba(214, 185, 140, .2);
+                border-radius: 50%;
+                right: -75px;
+                top: -115px;
+                pointer-events: none;
+            }
+
+        .tm-variant-page .tm-eyebrow {
+            color: var(--tm-gold);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .tm-variant-page .tm-hero h2 {
+            font-size: clamp(23px, 3vw, 30px);
+            font-weight: 750;
+            margin-bottom: 10px;
+        }
+
+        .tm-variant-page .tm-hero p {
+            color: #C1CDDB;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .tm-variant-page .tm-product-name {
+            color: var(--tm-gold);
+            font-weight: 700;
+        }
+
+        .tm-variant-page .tm-hero-actions {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tm-variant-page .tm-hero .btn {
+            border-radius: 9px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .tm-variant-page .btn-tm-gold {
+            background: var(--tm-gold);
+            color: var(--tm-navy);
+            border: 1px solid var(--tm-gold);
+        }
+
+            .tm-variant-page .btn-tm-gold:hover {
+                background: #E5CCA5;
+                border-color: #E5CCA5;
+                color: var(--tm-navy);
+            }
+
+        .tm-variant-page .tm-stat {
+            height: 100%;
+            background: #fff;
+            border: 1px solid var(--tm-border);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(10, 17, 29, .025);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+            .tm-variant-page .tm-stat:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 9px 22px rgba(10, 17, 29, .07);
+            }
+
+        .tm-variant-page .tm-stat-label {
+            color: #8290A2;
+            font-size: 12px;
+            font-weight: 650;
+            margin-bottom: 9px;
+        }
+
+        .tm-variant-page .tm-stat-number {
+            color: var(--tm-navy);
+            font-size: 27px;
+            font-weight: 750;
+            line-height: 1.2;
+        }
+
+        .tm-variant-page .tm-stat-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 19px;
+        }
+
+        .tm-variant-page .tm-panel {
+            background: #fff;
+            border: 1px solid var(--tm-border);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(10, 17, 29, .035);
+        }
+
+        .tm-variant-page .tm-panel-header {
+            padding: 21px 23px;
+            border-bottom: 1px solid var(--tm-border);
+        }
+
+            .tm-variant-page .tm-panel-header h5 {
+                color: var(--tm-navy);
+                font-size: 16px;
+                font-weight: 750;
+                margin-bottom: 5px;
+            }
+
+            .tm-variant-page .tm-panel-header p {
+                color: #8290A2;
+                font-size: 12px;
+                margin: 0;
+            }
+
+        .tm-variant-page .tm-toolbar {
+            display: flex;
+            gap: 12px;
+            padding: 17px 22px;
+            flex-wrap: wrap;
+        }
+
+            .tm-variant-page .tm-toolbar .form-control,
+            .tm-variant-page .tm-toolbar .form-select,
+            .tm-variant-page .tm-toolbar .input-group-text {
+                min-height: 43px;
+                border-color: var(--tm-border);
+                font-size: 13px;
+            }
+
+                .tm-variant-page .tm-toolbar .form-control:focus,
+                .tm-variant-page .tm-toolbar .form-select:focus {
+                    border-color: var(--tm-muted);
+                    box-shadow: 0 0 0 3px rgba(123, 150, 180, .12);
+                }
+
+            .tm-variant-page .tm-toolbar .input-group-text {
+                color: var(--tm-muted);
+                border-radius: 9px 0 0 9px;
+            }
+
+            .tm-variant-page .tm-toolbar .form-control {
+                border-radius: 0 9px 9px 0;
+            }
+
+            .tm-variant-page .tm-toolbar .form-select {
+                border-radius: 9px;
+            }
+
+        .tm-variant-page .tm-table {
+            margin-bottom: 0;
+        }
+
+            .tm-variant-page .tm-table thead th {
+                background: #F5F7FA;
+                color: #78879A;
+                font-size: 11px;
+                font-weight: 750;
+                letter-spacing: .6px;
+                text-transform: uppercase;
+                padding: 15px;
+                white-space: nowrap;
+                border-bottom: 1px solid var(--tm-border);
+            }
+
+            .tm-variant-page .tm-table tbody td {
+                padding: 16px 15px;
+                color: #344256;
+                font-size: 13px;
+                vertical-align: middle;
+                border-bottom: 1px solid #EFF1F5;
+            }
+
+            .tm-variant-page .tm-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+            .tm-variant-page .tm-table tbody tr:hover {
+                background: #FAFBFD;
+            }
+
+        .tm-variant-page .tm-index {
+            color: #9AA6B5;
+            font-weight: 650;
+        }
+
+        .tm-variant-page .tm-sku {
+            display: inline-block;
+            background: #EEF2F7;
+            color: var(--tm-blue);
+            border: 1px solid #E0E7EF;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 750;
+            letter-spacing: .3px;
+        }
+
+        .tm-variant-page .tm-size {
+            display: inline-flex;
+            min-width: 38px;
+            justify-content: center;
+            padding: 6px 10px;
+            background: #F7F4EE;
+            border: 1px solid #E9DDCA;
+            color: #806744;
+            border-radius: 7px;
+            font-weight: 750;
+        }
+
+        .tm-variant-page .tm-color {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 600;
+        }
+
+            .tm-variant-page .tm-color i {
+                color: var(--tm-muted);
+            }
+
+        .tm-variant-page .tm-stock {
+            color: var(--tm-navy);
+            font-size: 15px;
+            font-weight: 750;
+        }
+
+        .tm-variant-page .tm-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .tm-variant-page .tm-status-active {
+            color: #26734D;
+            background: #EAF5EF;
+        }
+
+        .tm-variant-page .tm-status-hidden {
+            color: #788493;
+            background: #F0F2F5;
+        }
+
+        .tm-variant-page .tm-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
+
+            .tm-variant-page .tm-actions .btn {
+                border-radius: 7px;
+                font-size: 12px;
+                font-weight: 650;
+                padding: 6px 10px;
+            }
+
+        .tm-variant-page .tm-empty {
+            padding: 55px 20px !important;
+            text-align: center;
+            color: #8290A2 !important;
+        }
+
+            .tm-variant-page .tm-empty i {
+                display: block;
+                font-size: 40px;
+                color: #C5CED9;
+                margin-bottom: 13px;
+            }
+
+            .tm-variant-page .tm-empty strong {
+                display: block;
+                color: var(--tm-navy);
+                font-size: 15px;
+                margin-bottom: 7px;
+            }
+
+        .tm-variant-page .tm-footer {
+            padding: 17px 22px;
+            border-top: 1px solid var(--tm-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .tm-variant-page .tm-footer .btn {
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 650;
+            }
+
+        .tm-variant-page .alert {
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+    @@media (max-width: 768px) {
+        .tm-variant-page {
+            padding-top: 18px;
+        }
+
+            .tm-variant-page .tm-hero {
+                padding: 22px;
+            }
+
+            .tm-variant-page .tm-hero-actions {
+                margin-top: 20px;
+            }
+
+                .tm-variant-page .tm-hero-actions .btn {
+                    flex: 1 1 auto;
+                }
+
+            .tm-variant-page .tm-toolbar > * {
+                width: 100%;
+            }
+
+            .tm-variant-page .tm-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+                .tm-variant-page .tm-footer .btn {
+                    width: 100%;
+                }
+    }
+</style>
+
+<div class="tm-variant-page">
+    <div class="container-fluid px-lg-4">
+
+        <!-- HEADER -->
+        <div class="tm-hero">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="tm-eyebrow">
+                        <i class="bi bi-shop me-1"></i>
+                        STORE MANAGEMENT
+                    </div>
+
+                    <h2>
+                        <i class="bi bi-boxes me-2"></i>
+                        Quản lý biến thể sản phẩm
+                    </h2>
+
+                    <p class="mb-2">
+                        Sản phẩm:
+                        <span class="tm-product-name">
+                            @(product?.Name ?? "Không xác định")
+                        </span>
+                    </p>
+
+                    <p>
+                        Quản lý kích cỡ, màu sắc, SKU và số lượng tồn kho của từng biến thể.
+                    </p>
+                </div>
+
+                <div class="col-lg-4 text-lg-end tm-hero-actions">
+                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                        <a asp-area="Store"
+                           asp-controller="Dashboard"
+                           asp-action="Index"
+                           class="btn btn-outline-light">
+                            <i class="bi bi-house-door me-1"></i>
+                            Dashboard
+                        </a>
+
+                        <a asp-area="Store"
+                           asp-controller="Product"
+                           asp-action="Index"
+                           class="btn btn-outline-light">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Quay lại
+                        </a>
+
+                        <a asp-area="Store"
+                           asp-controller="Product"
+                           asp-action="CreateVariant"
+                           asp-route-productId="@product?.Id"
+                           class="btn btn-tm-gold">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Thêm biến thể
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THÔNG BÁO -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Success"]
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @TempData["Error"]
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- THỐNG KÊ -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="tm-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="tm-stat-label">TỔNG BIẾN THỂ</div>
+                            <div class="tm-stat-number">@totalVariants</div>
+                        </div>
+                        <div class="tm-stat-icon" style="background:#EEF2F7;color:#24466C;">
+                            <i class="bi bi-boxes"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="tm-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="tm-stat-label">ĐANG BÁN</div>
+                            <div class="tm-stat-number" style="color:#26734D;">@activeVariants</div>
+                        </div>
+                        <div class="tm-stat-icon" style="background:#EAF5EF;color:#26734D;">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="tm-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="tm-stat-label">ĐÃ ẨN</div>
+                            <div class="tm-stat-number" style="color:#7C8795;">@hiddenVariants</div>
+                        </div>
+                        <div class="tm-stat-icon" style="background:#F0F2F5;color:#7C8795;">
+                            <i class="bi bi-eye-slash"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="tm-stat">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="tm-stat-label">TỔNG TỒN KHO ĐANG BÁN</div>
+                            <div class="tm-stat-number" style="color:#24466C;">@totalStock</div>
+                        </div>
+                        <div class="tm-stat-icon" style="background:#EEF2F7;color:#24466C;">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DANH SÁCH BIẾN THỂ -->
+        <div class="tm-panel">
+
+            <div class="tm-panel-header">
+                <h5>
+                    <i class="bi bi-list-ul me-2" style="color:#7B96B4;"></i>
+                    Danh sách biến thể
+                </h5>
+                <p>
+                    Quản lý các phiên bản kích cỡ, màu sắc và mã SKU của sản phẩm
+                </p>
+            </div>
+
+            <!-- TÌM KIẾM VÀ LỌC -->
+            <div class="tm-toolbar">
+                <div class="flex-grow-1">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text"
+                               id="variantSearch"
+                               class="form-control"
+                               placeholder="Tìm theo SKU, kích cỡ hoặc màu sắc..." />
+                    </div>
+                </div>
+
+                <div style="min-width:200px;">
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="active">Đang bán</option>
+                        <option value="hidden">Đã ẩn</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- BẢNG DỮ LIỆU -->
+            <div class="table-responsive">
+                <table class="table tm-table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width:65px;">STT</th>
+                            <th>Mã SKU</th>
+                            <th>Kích cỡ</th>
+                            <th>Màu sắc</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th style="min-width:175px;">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="variantTableBody">
+                        @if (variants.Any())
+                        {
+                            int index = 1;
+
+                            foreach (var item in variants)
+                            {
+                                <tr class="variant-row"
+                                    data-status="@(item.IsActive ? "active" : "hidden")"
+                                    data-search="@($"{item.SKU} {item.Size} {item.Color}")">
+
+                                    <td>
+                                        <span class="tm-index">@index</span>
+                                    </td>
+
+                                    <td>
+                                        <span class="tm-sku">@item.SKU</span>
+                                    </td>
+
+                                    <td>
+                                        <span class="tm-size">@item.Size</span>
+                                    </td>
+
+                                    <td>
+                                        <span class="tm-color">
+                                            <i class="bi bi-palette"></i>
+                                            @item.Color
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="tm-stock">@item.Quantity</span>
+                                        <small class="text-muted"> sản phẩm</small>
+                                    </td>
+
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="tm-status tm-status-active">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                                Đang bán
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="tm-status tm-status-hidden">
+                                                <i class="bi bi-eye-slash"></i>
+                                                Đã ẩn
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="tm-actions">
+                                            <a asp-area="Store"
+                                               asp-controller="Product"
+                                               asp-action="EditVariant"
+                                               asp-route-id="@item.Id"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-pencil-square"></i>
+                                                Sửa
+                                            </a>
+
+                                            <form asp-area="Store"
+                                                  asp-controller="Product"
+                                                  asp-action="ToggleVariantStatus"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Bạn có chắc muốn @(item.IsActive ? "ẩn" : "hiện") biến thể này không?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.Id" />
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-secondary btn-sm">
+                                                    @if (item.IsActive)
+                                                    {
+                                                        <i class="bi bi-eye-slash"></i>
+                                                        <span>Ẩn</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-eye"></i>
+                                                        <span>Hiện</span>
+                                                    }
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                index++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="tm-empty">
+                                    <i class="bi bi-box-seam"></i>
+                                    <strong>Chưa có biến thể nào</strong>
+                                    <p class="mb-3">
+                                        Hãy thêm biến thể đầu tiên cho sản phẩm này.
+                                    </p>
+
+                                    <a asp-area="Store"
+                                       asp-controller="Product"
+                                       asp-action="CreateVariant"
+                                       asp-route-productId="@product?.Id"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="bi bi-plus-lg me-1"></i>
+                                        Thêm biến thể
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+
+                        <tr id="noSearchResult" style="display:none;">
+                            <td colspan="7" class="tm-empty">
+                                <i class="bi bi-search"></i>
+                                <strong>Không tìm thấy biến thể phù hợp</strong>
+                                <p class="mb-0">
+                                    Hãy thử từ khóa hoặc trạng thái khác.
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="tm-footer">
+                <div class="text-muted small">
+                    Đang hiển thị
+                    <strong id="visibleCount">@totalVariants</strong>
+                    / @totalVariants biến thể
+                </div>
+
+                <a asp-area="Store"
+                   asp-controller="Product"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Quay lại danh sách sản phẩm
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("variantSearch");
+        const statusFilter = document.getElementById("statusFilter");
+        const rows = document.querySelectorAll(".variant-row");
+        const noResult = document.getElementById("noSearchResult");
+        const visibleCount = document.getElementById("visibleCount");
+
+        function filterVariants() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            const status = statusFilter.value;
+
+            let count = 0;
+
+            rows.forEach(row => {
+                const searchText = (row.dataset.search || "").toLowerCase();
+                const rowStatus = row.dataset.status;
+
+                const matchKeyword = searchText.includes(keyword);
+                const matchStatus = status === "all" || rowStatus === status;
+
+                if (matchKeyword && matchStatus) {
+                    row.style.display = "";
+                    count++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            noResult.style.display =
+                count === 0 && rows.length > 0 ? "" : "none";
+
+            visibleCount.textContent = count;
+        }
+
+        searchInput.addEventListener("input", filterVariants);
+        statusFilter.addEventListener("change", filterVariants);
+    });
+</script>
