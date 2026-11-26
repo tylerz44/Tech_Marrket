@@ -3,180 +3,566 @@
 @{
     ViewData["Title"] = "Duyệt cửa hàng";
 
+
+
     var requests = Model?.ToList() ?? new List<TechMarket.Models.StoreRegistrationRequest>();
 
+
+
     int totalRequests = requests.Count;
+
     int pendingRequests = requests.Count(x => x.Status == "Pending");
+
     int approvedRequests = requests.Count(x => x.Status == "Approved");
+
     int rejectedRequests = requests.Count(x => x.Status != "Pending" && x.Status != "Approved");
 }
 
 <style>
+    /* =========================
+           GENERAL
+        ========================= */
     .approval-page {
-        background: #f5f7fb;
-        min-height: 80vh;
-        padding: 35px 0;
+        min-height: 85vh;
+        padding: 36px 20px 55px;
+        background: #F3F6FB;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #142B48;
     }
 
+    .approval-container {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+           HEADER
+        ========================= */
     .approval-header {
-        background: linear-gradient(135deg, #212529, #495057);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 25px;
+        padding: 32px 38px;
+        margin-bottom: 30px;
         color: white;
-        padding: 28px;
-        border-radius: 16px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.08);
+        background: linear-gradient(115deg, #0D1B2E, #1B3A60);
+        border-radius: 22px;
+        box-shadow: 0 12px 30px rgba(15, 35, 60, .13);
+    }
+
+    .approval-header-content {
+        flex: 1 1 450px;
+    }
+
+    .approval-eyebrow {
+        margin-bottom: 10px;
+        color: #E5C18A;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 2px;
     }
 
     .approval-header h2 {
-        font-weight: 700;
-        margin-bottom: 8px;
+        margin: 0 0 10px;
+        color: #fff;
+        font-size: 28px;
+        font-weight: 750;
     }
 
-    .stat-card {
-        background: white;
-        border: none;
-        border-radius: 14px;
-        padding: 20px;
-        height: 100%;
-        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+    .approval-header p {
+        margin: 0;
+        color: #D5DFEC;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
+    .approval-dashboard-btn {
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 23px;
-    }
-
-    .stat-number {
-        font-size: 27px;
-        font-weight: 700;
-        margin-top: 12px;
-    }
-
-    .stat-label {
-        color: #6c757d;
+        gap: 9px;
+        min-height: 46px;
+        padding: 0 20px;
+        color: #fff;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,.4);
+        border-radius: 10px;
         font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: .2s ease;
     }
 
+        .approval-dashboard-btn:hover {
+            color: #F0D4A7;
+            background: rgba(255,255,255,.08);
+            border-color: #E5C18A;
+        }
+
+    /* =========================
+           ALERT
+        ========================= */
+    .approval-alert {
+        padding: 14px 18px;
+        margin-bottom: 22px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(20, 42, 70, .04);
+    }
+
+    /* =========================
+           STATISTICS
+        ========================= */
+    .approval-stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+        width: 100%;
+        margin: 0 0 28px !important;
+        padding: 0 !important;
+    }
+
+    .approval-stat-card {
+        display: block !important;
+        width: 100%;
+        min-width: 0;
+        min-height: 150px !important;
+        height: auto !important;
+        padding: 22px 24px !important;
+        background: #fff;
+        border: 1px solid #E5EBF3;
+        border-radius: 17px;
+        box-shadow: 0 5px 18px rgba(20, 42, 70, .05);
+        box-sizing: border-box;
+        transition: .2s ease;
+    }
+
+        .approval-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(20, 42, 70, .09);
+        }
+
+    .approval-stat-icon {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 12px;
+        font-size: 23px;
+        font-weight: 700;
+    }
+
+    .approval-stat-number {
+        margin-top: 12px;
+        color: #142B48;
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .approval-stat-label {
+        margin-top: 6px;
+        color: #8190A3;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+    }
+
+    .stat-total .approval-stat-icon {
+        color: #315C8A;
+        background: #E9F1FC;
+    }
+
+    .stat-pending .approval-stat-icon {
+        color: #AD7B32;
+        background: #FFF3DE;
+    }
+
+    .stat-approved .approval-stat-icon {
+        color: #07805B;
+        background: #E5F5EE;
+    }
+
+    .stat-rejected .approval-stat-icon {
+        color: #B94A4A;
+        background: #FDEBEC;
+    }
+
+    /* =========================
+           TABLE CARD
+        ========================= */
     .approval-table-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 3px 15px rgba(0,0,0,.05);
+        display: block !important;
+        width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 25px;
+        margin: 0;
+        background: #fff;
+        border: 1px solid #E5EBF3;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(20, 42, 70, .05);
+        box-sizing: border-box;
+    }
+
+    .approval-table-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .approval-table-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin: 0 0 7px;
+        color: #142B48;
+        font-size: 19px;
+        font-weight: 750;
+    }
+
+        .approval-table-title i {
+            color: #D2A96B;
+            font-size: 22px;
+        }
+
+    .approval-table-subtitle {
+        color: #8190A3;
+        font-size: 13px;
+    }
+
+    /* =========================
+           SEARCH
+        ========================= */
+    .approval-search {
+        width: 310px;
+        max-width: 100%;
+    }
+
+        .approval-search .input-group-text {
+            color: #71839A;
+            background: #F4F7FB;
+            border: 1px solid #DCE4EF;
+            border-right: 0;
+            border-radius: 9px 0 0 9px;
+        }
+
+        .approval-search .form-control {
+            min-height: 43px;
+            color: #263D56;
+            background: #FBFCFE;
+            border: 1px solid #DCE4EF;
+            border-left: 0;
+            border-radius: 0 9px 9px 0;
+            font-size: 13px;
+            box-shadow: none;
+        }
+
+            .approval-search .form-control:focus {
+                background: #fff;
+                border-color: #DCE4EF;
+                box-shadow: none;
+            }
+
+    /* =========================
+           TABLE
+        ========================= */
+    .approval-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
     }
 
     .approval-table {
+        width: 100%;
+        min-width: 1050px;
+        margin: 0;
+        border-collapse: collapse;
         vertical-align: middle;
-        margin-bottom: 0;
     }
 
-    .approval-table thead th {
-        background: #f1f4f9;
-        color: #495057;
-        font-size: 13px;
-        font-weight: 700;
-        text-transform: uppercase;
+        .approval-table thead th {
+            padding: 17px 13px;
+            color: #405B7C;
+            background: #F0F3F8;
+            border-bottom: 1px solid #E5EAF1;
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            white-space: nowrap;
+        }
+
+        .approval-table tbody td {
+            padding: 18px 13px;
+            color: #344B66;
+            font-size: 14px;
+            vertical-align: middle;
+            border-bottom: 1px solid #E9EEF5;
+        }
+
+        .approval-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .approval-table tbody tr:hover td {
+            background: #F9FBFE;
+        }
+
+    .approval-id {
+        color: #142B48;
+        font-weight: 750;
+    }
+
+    .approval-store-name {
+        color: #142B48;
+        font-weight: 750;
         white-space: nowrap;
-        padding: 15px 12px;
-        border-bottom: 0;
     }
 
-    .approval-table tbody td {
-        padding: 15px 12px;
-        color: #495057;
+        .approval-store-name i {
+            margin-right: 6px;
+            color: #B99560;
+        }
+
+    .approval-address {
+        min-width: 180px;
+        color: #71839A;
     }
 
-    .approval-table tbody tr:hover {
-        background: #f8faff;
+    .approval-phone {
+        white-space: nowrap;
     }
 
-    .status-badge {
-        display: inline-block;
+    .approval-date {
+        color: #405B7C;
+        white-space: nowrap;
+    }
+
+    /* =========================
+           STATUS
+        ========================= */
+    .approval-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         padding: 7px 12px;
         border-radius: 20px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 700;
         white-space: nowrap;
     }
 
-    .status-pending {
-        background: #fff3cd;
-        color: #856404;
+    .approval-status-pending {
+        color: #A87525;
+        background: #FFF3DE;
     }
 
-    .status-approved {
-        background: #d1e7dd;
-        color: #0f5132;
+    .approval-status-approved {
+        color: #07805B;
+        background: #E5F5EE;
     }
 
-    .status-rejected {
-        background: #f8d7da;
-        color: #842029;
+    .approval-status-rejected {
+        color: #B94A4A;
+        background: #FDEBEC;
     }
 
-    .action-btn {
-        border-radius: 7px;
+    /* =========================
+           ACTION BUTTONS
+        ========================= */
+    .approval-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+        .approval-actions form {
+            display: inline-block;
+            margin: 0;
+        }
+
+    .approval-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 36px;
+        padding: 6px 12px;
+        border-radius: 8px;
         font-size: 13px;
-        font-weight: 600;
-        padding: 7px 11px;
-        margin: 2px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: .2s ease;
     }
 
-    .empty-state {
+    .approval-btn-approve {
+        color: #07805B;
+        background: #E5F5EE;
+        border: 1px solid #CBEBDD;
+    }
+
+        .approval-btn-approve:hover {
+            color: #056747;
+            background: #D2F0E1;
+        }
+
+    .approval-btn-reject {
+        color: #B94A4A;
+        background: #FDEBEC;
+        border: 1px solid #F7D9DB;
+    }
+
+        .approval-btn-reject:hover {
+            color: #963737;
+            background: #FBDCDD;
+        }
+
+    .approval-no-action {
+        color: #8795A7;
+        font-size: 12px;
+    }
+
+    /* =========================
+           EMPTY STATE
+        ========================= */
+    .approval-empty {
+        padding: 60px 20px;
         text-align: center;
-        padding: 55px 15px;
-        color: #6c757d;
+        color: #8190A3;
     }
 
-    .empty-state i {
-        font-size: 45px;
-        color: #adb5bd;
+        .approval-empty i {
+            color: #B6C2D0;
+            font-size: 45px;
+        }
+
+        .approval-empty h5 {
+            margin-top: 16px;
+            color: #142B48;
+            font-size: 17px;
+            font-weight: 750;
+        }
+
+        .approval-empty p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+    .approval-no-search {
+        padding: 45px 20px;
+        color: #8190A3;
+        text-align: center;
     }
 
-    .table-responsive {
-        border-radius: 10px;
+        .approval-no-search i {
+            color: #B6C2D0;
+            font-size: 35px;
+        }
+
+    /* =========================
+           RESPONSIVE
+        ========================= */
+    @@media (max-width: 992px) {
+        .approval-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .approval-page {
+            padding: 22px 12px 35px;
+        }
+
+        .approval-header {
+            padding: 25px 20px;
+        }
+
+            .approval-header h2 {
+                font-size: 22px;
+            }
+
+        .approval-dashboard-btn {
+            width: 100%;
+        }
+
+        .approval-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+        }
+
+        .approval-stat-card {
+            min-height: 130px !important;
+            padding: 16px !important;
+        }
+
+        .approval-stat-number {
+            font-size: 25px;
+        }
+
+        .approval-stat-label {
+            font-size: 10px;
+        }
+
+        .approval-table-card {
+            padding: 15px;
+        }
+
+        .approval-search {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="approval-page">
-    <div class="container">
+    <div class="approval-container">
 
         <!-- HEADER -->
         <div class="approval-header">
-            <div class="d-flex flex-column flex-md-row
-                        justify-content-between align-items-md-center">
 
-                <div>
-                    <h2>
-                        <i class="bi bi-shop-window text-warning me-2"></i>
-                        DUYỆT YÊU CẦU MỞ CỬA HÀNG
-                    </h2>
-
-                    <p class="mb-0 text-white-50">
-                        Quản lý và xét duyệt đăng ký trở thành StoreOwner trên TechMarket.
-                    </p>
+            <div class="approval-header-content">
+                <div class="approval-eyebrow">
+                    TECHMARKET ADMIN
                 </div>
 
-                <a asp-area="Admin"
-                   asp-controller="Dashboard"
-                   asp-action="Index"
-                   class="btn btn-outline-light mt-3 mt-md-0">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Dashboard
-                </a>
+                <h2>
+                    <i class="bi bi-shop-window me-2"
+                       style="color:#E5C18A"></i>
+                    Duyệt yêu cầu mở cửa hàng
+                </h2>
 
+                <p>
+                    Quản lý và xét duyệt đăng ký trở thành StoreOwner trên TechMarket.
+                </p>
             </div>
+
+            <a asp-area="Admin"
+               asp-controller="Dashboard"
+               asp-action="Index"
+               class="approval-dashboard-btn">
+                <i class="bi bi-arrow-left"></i>
+                Quay về trang quản trị
+            </a>
+
         </div>
 
         <!-- NOTIFICATIONS -->
         @if (TempData["Success"] != null)
+
         {
-            <div class="alert alert-success alert-dismissible fade show shadow-sm"
+            <div class="alert alert-success alert-dismissible fade show approval-alert"
                  role="alert">
+
                 <i class="bi bi-check-circle-fill me-2"></i>
                 @TempData["Success"]
 
@@ -188,9 +574,11 @@
         }
 
         @if (TempData["Error"] != null)
+
         {
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+            <div class="alert alert-danger alert-dismissible fade show approval-alert"
                  role="alert">
+
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 @TempData["Error"]
 
@@ -202,49 +590,61 @@
         }
 
         <!-- STATISTICS -->
-        <div class="row g-3 mb-4">
+        <div class="approval-stats-grid">
 
-            <div class="col-6 col-lg-3">
-                <div class="stat-card">
-                    <div class="stat-icon bg-primary-subtle text-primary">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
+            <div class="approval-stat-card stat-total">
+                <div class="approval-stat-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
 
-                    <div class="stat-number">@totalRequests</div>
-                    <div class="stat-label">Tổng yêu cầu</div>
+                <div class="approval-stat-number">
+                    @totalRequests
+                </div>
+
+                <div class="approval-stat-label">
+                    Tổng yêu cầu
                 </div>
             </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="stat-card">
-                    <div class="stat-icon bg-warning-subtle text-warning">
-                        <i class="bi bi-hourglass-split"></i>
-                    </div>
+            <div class="approval-stat-card stat-pending">
+                <div class="approval-stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
 
-                    <div class="stat-number">@pendingRequests</div>
-                    <div class="stat-label">Chờ duyệt</div>
+                <div class="approval-stat-number">
+                    @pendingRequests
+                </div>
+
+                <div class="approval-stat-label">
+                    Chờ duyệt
                 </div>
             </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="stat-card">
-                    <div class="stat-icon bg-success-subtle text-success">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
+            <div class="approval-stat-card stat-approved">
+                <div class="approval-stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
 
-                    <div class="stat-number">@approvedRequests</div>
-                    <div class="stat-label">Đã duyệt</div>
+                <div class="approval-stat-number">
+                    @approvedRequests
+                </div>
+
+                <div class="approval-stat-label">
+                    Đã duyệt
                 </div>
             </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="stat-card">
-                    <div class="stat-icon bg-danger-subtle text-danger">
-                        <i class="bi bi-x-circle"></i>
-                    </div>
+            <div class="approval-stat-card stat-rejected">
+                <div class="approval-stat-icon">
+                    <i class="bi bi-x-circle"></i>
+                </div>
 
-                    <div class="stat-number">@rejectedRequests</div>
-                    <div class="stat-label">Đã từ chối</div>
+                <div class="approval-stat-number">
+                    @rejectedRequests
+                </div>
+
+                <div class="approval-stat-label">
+                    Đã từ chối
                 </div>
             </div>
 
@@ -253,23 +653,24 @@
         <!-- TABLE -->
         <div class="approval-table-card">
 
-            <div class="d-flex flex-column flex-md-row
-                        justify-content-between align-items-md-center mb-4">
+            <div class="approval-table-heading">
 
                 <div>
-                    <h5 class="fw-bold mb-1">
-                        <i class="bi bi-list-ul text-primary me-2"></i>
+                    <h5 class="approval-table-title">
+                        <i class="bi bi-grid-3x2-gap-fill"></i>
                         Danh sách đăng ký cửa hàng
                     </h5>
 
-                    <small class="text-muted">
+                    <div class="approval-table-subtitle">
                         Tổng cộng @totalRequests yêu cầu đăng ký
-                    </small>
+                    </div>
                 </div>
 
-                <div class="mt-3 mt-md-0">
+                <!-- SEARCH -->
+                <div class="approval-search">
                     <div class="input-group">
-                        <span class="input-group-text bg-light">
+
+                        <span class="input-group-text">
                             <i class="bi bi-search"></i>
                         </span>
 
@@ -277,14 +678,16 @@
                                id="searchInput"
                                class="form-control"
                                placeholder="Tìm tên cửa hàng..." />
+
                     </div>
                 </div>
 
             </div>
 
-            <div class="table-responsive">
+            <!-- TABLE CONTENT -->
+            <div class="approval-table-wrapper">
 
-                <table class="table approval-table" id="approvalTable">
+                <table class="approval-table" id="approvalTable">
 
                     <thead>
                         <tr>
@@ -294,71 +697,93 @@
                             <th>Số điện thoại</th>
                             <th>Ngày gửi</th>
                             <th>Trạng thái</th>
-                            <th class="text-center">Thao tác</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
 
                     <tbody>
 
                         @if (requests.Any())
+
                         {
                             @foreach (var item in requests)
+
                             {
-                                <tr>
-                                    <td class="fw-semibold">
-                                        #@item.Id
-                                    </td>
+                                <tr class="approval-data-row">
 
-                                    <td class="fw-semibold text-dark">
-                                        <i class="bi bi-shop text-primary me-1"></i>
-                                        @item.StoreName
+                                    <td>
+                                        <span class="approval-id">
+                                            #@item.Id
+                                        </span>
                                     </td>
 
                                     <td>
-                                        @item.Address
+                                        <span class="approval-store-name">
+                                            <i class="bi bi-shop"></i>
+                                            @item.StoreName
+                                        </span>
                                     </td>
 
                                     <td>
-                                        <i class="bi bi-telephone text-muted me-1"></i>
-                                        @item.Phone
+                                        <div class="approval-address">
+                                            @item.Address
+                                        </div>
                                     </td>
 
                                     <td>
-                                        @item.CreatedAt.ToString("dd/MM/yyyy")
+                                        <span class="approval-phone">
+                                            <i class="bi bi-telephone me-1"
+                                               style="color:#91A0B2"></i>
+                                            @item.Phone
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="approval-date">
+                                            @item.CreatedAt.ToString("dd/MM/yyyy")
+                                        </span>
                                     </td>
 
                                     <td>
                                         @if (item.Status == "Pending")
+
                                         {
-                                            <span class="status-badge status-pending">
-                                                <i class="bi bi-clock me-1"></i>
+                                            <span class="approval-status approval-status-pending">
+                                                <i class="bi bi-clock"></i>
                                                 Chờ duyệt
                                             </span>
                                         }
+
                                         else if (item.Status == "Approved")
+
                                         {
-                                            <span class="status-badge status-approved">
-                                                <i class="bi bi-check-circle me-1"></i>
+                                            <span class="approval-status approval-status-approved">
+                                                <i class="bi bi-check-circle"></i>
                                                 Đã duyệt
                                             </span>
                                         }
+
                                         else
+
                                         {
-                                            <span class="status-badge status-rejected">
-                                                <i class="bi bi-x-circle me-1"></i>
+                                            <span class="approval-status approval-status-rejected">
+                                                <i class="bi bi-x-circle"></i>
                                                 Đã từ chối
                                             </span>
                                         }
                                     </td>
 
-                                    <td class="text-center">
+                                    <td>
                                         @if (item.Status == "Pending")
-                                        {
-                                            <div class="d-flex flex-wrap justify-content-center">
 
-                                                <form action="/Admin/StoreApproval/Approve"
-                                                      method="post"
-                                                      class="d-inline">
+                                        {
+                                            <div class="approval-actions">
+
+                                                <!-- APPROVE -->
+                                                <form asp-area="Admin"
+                                                      asp-controller="StoreApproval"
+                                                      asp-action="Approve"
+                                                      method="post">
 
                                                     @Html.AntiForgeryToken()
 
@@ -367,17 +792,20 @@
                                                            value="@item.Id" />
 
                                                     <button type="submit"
-                                                            class="btn btn-success action-btn"
+                                                            class="approval-btn approval-btn-approve"
                                                             onclick="return confirm('Bạn chắc chắn muốn duyệt cửa hàng này?')">
 
                                                         <i class="bi bi-check-lg"></i>
                                                         Duyệt
+
                                                     </button>
                                                 </form>
 
-                                                <form action="/Admin/StoreApproval/Reject"
-                                                      method="post"
-                                                      class="d-inline">
+                                                <!-- REJECT -->
+                                                <form asp-area="Admin"
+                                                      asp-controller="StoreApproval"
+                                                      asp-action="Reject"
+                                                      method="post">
 
                                                     @Html.AntiForgeryToken()
 
@@ -386,58 +814,73 @@
                                                            value="@item.Id" />
 
                                                     <button type="submit"
-                                                            class="btn btn-outline-danger action-btn"
+                                                            class="approval-btn approval-btn-reject"
                                                             onclick="return confirm('Bạn chắc chắn muốn từ chối yêu cầu này?')">
 
                                                         <i class="bi bi-x-lg"></i>
                                                         Từ chối
+
                                                     </button>
                                                 </form>
 
                                             </div>
                                         }
+
                                         else
+
                                         {
-                                            <span class="text-muted small">
+                                            <span class="approval-no-action">
                                                 Không có thao tác
                                             </span>
                                         }
                                     </td>
+
                                 </tr>
                             }
                         }
+
                         else
+
                         {
                             <tr>
                                 <td colspan="7">
-                                    <div class="empty-state">
+
+                                    <div class="approval-empty">
                                         <i class="bi bi-inbox"></i>
 
-                                        <h5 class="mt-3 fw-bold">
+                                        <h5>
                                             Chưa có yêu cầu đăng ký
                                         </h5>
 
-                                        <p class="mb-0">
+                                        <p>
                                             Các yêu cầu mở cửa hàng sẽ hiển thị tại đây.
                                         </p>
                                     </div>
+
                                 </td>
                             </tr>
                         }
 
                     </tbody>
-
                 </table>
 
+                <!-- NO SEARCH RESULT -->
                 <div id="noSearchResult"
-                     class="empty-state d-none">
+                     class="approval-no-search d-none">
+
                     <i class="bi bi-search"></i>
-                    <h5 class="mt-3 fw-bold">Không tìm thấy kết quả</h5>
-                    <p class="mb-0">Thử tìm kiếm bằng tên cửa hàng khác.</p>
+
+                    <h5 class="mt-3 fw-bold">
+                        Không tìm thấy kết quả
+                    </h5>
+
+                    <p class="mb-0">
+                        Thử tìm kiếm bằng tên cửa hàng khác.
+                    </p>
+
                 </div>
 
             </div>
-
         </div>
 
     </div>
@@ -445,30 +888,45 @@
 
 @section Scripts {
     <script>
-        document.getElementById("searchInput").addEventListener("input", function () {
-            const keyword = this.value.toLowerCase().trim();
-            const rows = document.querySelectorAll("#approvalTable tbody tr");
-            let visibleCount = 0;
+        document.addEventListener("DOMContentLoaded", function () {
 
-            rows.forEach(row => {
-                const storeName = row.cells[1]?.innerText.toLowerCase() || "";
-                const isMatch = storeName.includes(keyword);
+            const searchInput = document.getElementById("searchInput");
+            const table = document.getElementById("approvalTable");
+            const noResult = document.getElementById("noSearchResult");
 
-                row.style.display = isMatch ? "" : "none";
+            if (!searchInput || !table || !noResult) {
+                return;
+            }
 
-                if (isMatch) {
-                    visibleCount++;
+            searchInput.addEventListener("input", function () {
+
+                const keyword = this.value.toLowerCase().trim();
+
+                const rows = table.querySelectorAll(".approval-data-row");
+
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+
+                    const storeName =
+                        row.cells[1]?.innerText.toLowerCase() || "";
+
+                    const isMatch = storeName.includes(keyword);
+
+                    row.style.display = isMatch ? "" : "none";
+
+                    if (isMatch) {
+                        visibleCount++;
+                    }
+                });
+
+                if (rows.length > 0 && visibleCount === 0) {
+                    noResult.classList.remove("d-none");
+                } else {
+                    noResult.classList.add("d-none");
                 }
             });
 
-            const noResult = document.getElementById("noSearchResult");
-            const hasData = rows.length > 0 && rows[0].cells.length > 1;
-
-            if (hasData && visibleCount === 0) {
-                noResult.classList.remove("d-none");
-            } else {
-                noResult.classList.add("d-none");
-            }
         });
     </script>
 }

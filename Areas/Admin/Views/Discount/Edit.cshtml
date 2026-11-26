@@ -1,13 +1,319 @@
 @model TechMarket.Models.DiscountCode
-@{ ViewData["Title"] = Model.Id == 0 ? "Tạo mã giảm giá" : "Sửa mã giảm giá"; }
-<div class="container py-4" style="max-width:760px"><h2>@ViewData["Title"]</h2><form method="post">@Html.AntiForgeryToken()<input asp-for="Id" type="hidden"/>
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<div class="mb-3"><label asp-for="Code" class="form-label">Mã giảm giá</label><input asp-for="Code" class="form-control" placeholder="VD: TECH10"/><span asp-validation-for="Code" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="DiscountType" class="form-label">Loại giảm</label><select asp-for="DiscountType" class="form-select"><option value="PERCENT">Giảm theo phần trăm</option><option value="FIXED">Giảm số tiền cố định</option></select></div>
-<div class="mb-3"><label asp-for="DiscountValue" class="form-label">Giá trị giảm</label><input asp-for="DiscountValue" class="form-control"/><span asp-validation-for="DiscountValue" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="MaxDiscountAmount" class="form-label">Giảm tối đa (áp dụng cho %; 0 = không giới hạn)</label><input asp-for="MaxDiscountAmount" class="form-control"/></div>
-<div class="mb-3"><label asp-for="MinOrderAmount" class="form-label">Giá trị đơn tối thiểu</label><input asp-for="MinOrderAmount" class="form-control"/></div>
-<div class="mb-3"><label asp-for="UsageLimit" class="form-label">Tổng lượt sử dụng</label><input asp-for="UsageLimit" class="form-control"/></div>
-<div class="row"><div class="col-md-6 mb-3"><label asp-for="StartAt" class="form-label">Bắt đầu</label><input asp-for="StartAt" type="datetime-local" class="form-control" value="@Model.StartAt.ToString("yyyy-MM-ddTHH:mm")"/></div><div class="col-md-6 mb-3"><label asp-for="EndAt" class="form-label">Kết thúc</label><input asp-for="EndAt" type="datetime-local" class="form-control" value="@Model.EndAt.ToString("yyyy-MM-ddTHH:mm")"/></div></div>
-<div class="form-check mb-3"><input asp-for="IsActive" class="form-check-input"/><label asp-for="IsActive" class="form-check-label">Kích hoạt mã</label></div>
-<button class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></form></div>
+
+@{
+    ViewData["Title"] = "Sửa mã giảm giá";
+}
+
+<style>
+    .discount-form-page {
+        min-height: 85vh;
+        padding: 45px 16px;
+        background: #F7F8F3;
+    }
+
+    .discount-form-container {
+        max-width: 850px;
+        margin: auto;
+    }
+
+    .discount-form-header h2 {
+        color: #263D32;
+        font-weight: 750;
+        margin-bottom: 8px;
+    }
+
+    .discount-form-header p {
+        color: #718078;
+        margin-bottom: 0;
+    }
+
+    .discount-form-card {
+        background: #fff;
+        border: 1px solid #E5EAE4;
+        border-radius: 18px;
+        padding: 32px;
+        box-shadow: 0 8px 28px rgba(35, 58, 43, 0.06);
+    }
+
+    .form-section-title {
+        color: #315D43;
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #E8EEE7;
+    }
+
+    .discount-form-card .form-label {
+        color: #3D5143;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .discount-form-card .form-control,
+    .discount-form-card .form-select {
+        min-height: 45px;
+        border: 1px solid #DCE5DC;
+        border-radius: 9px;
+        background-color: #FCFDFC;
+    }
+
+        .discount-form-card .form-control:focus,
+        .discount-form-card .form-select:focus {
+            border-color: #71977A;
+            box-shadow: 0 0 0 3px rgba(49, 93, 67, 0.10);
+        }
+
+    .discount-form-card .form-text {
+        color: #849087;
+        font-size: 12px;
+    }
+
+    .discount-form-card .form-check-input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+        .discount-form-card .form-check-input:checked {
+            background-color: #315D43;
+            border-color: #315D43;
+        }
+
+    .discount-form-card .form-check-label {
+        color: #3D5143;
+        font-weight: 600;
+        margin-left: 5px;
+    }
+
+    .btn-save {
+        background: #315D43;
+        color: #fff;
+        border: none;
+        border-radius: 9px;
+        padding: 11px 25px;
+        font-weight: 650;
+    }
+
+        .btn-save:hover {
+            background: #244A34;
+            color: #fff;
+        }
+
+    .btn-back {
+        background: #fff;
+        color: #52665A;
+        border: 1px solid #D8E1D8;
+        border-radius: 9px;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            background: #F0F4EF;
+            color: #315D43;
+        }
+
+    .form-check-custom {
+        background: #F5F8F4;
+        border: 1px solid #E3EBE1;
+        border-radius: 10px;
+        padding: 15px 18px;
+    }
+
+    @@media (max-width: 576px) {
+        .discount-form-card {
+            padding: 22px 17px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="discount-form-page">
+    <div class="discount-form-container">
+
+        <!-- Tiêu đề -->
+        <div class="discount-form-header mb-4">
+            <h2>🎟️ Sửa mã giảm giá</h2>
+            <p>Cập nhật thông tin và điều chỉnh chương trình ưu đãi.</p>
+        </div>
+
+        <!-- Form -->
+        <div class="discount-form-card">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+                <!-- Thông tin mã giảm giá -->
+                <div class="form-section-title">
+                    01. Thông tin mã giảm giá
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Code" class="form-label">
+                        Mã giảm giá
+                    </label>
+
+                    <input asp-for="Code"
+                           class="form-control"
+                           placeholder="Ví dụ: TECH10" />
+
+                    <span asp-validation-for="Code"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DiscountType" class="form-label">
+                            Loại giảm giá
+                        </label>
+
+                        <select asp-for="DiscountType" class="form-select">
+                            <option value="PERCENT">Giảm theo phần trăm (%)</option>
+                            <option value="FIXED">Giảm số tiền cố định</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DiscountValue" class="form-label">
+                            Giá trị giảm
+                        </label>
+
+                        <input asp-for="DiscountValue"
+                               type="number"
+                               min="0"
+                               step="any"
+                               class="form-control"
+                               placeholder="Nhập giá trị giảm" />
+
+                        <span asp-validation-for="DiscountValue"
+                              class="text-danger small">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MaxDiscountAmount" class="form-label">
+                        Số tiền giảm tối đa
+                    </label>
+
+                    <input asp-for="MaxDiscountAmount"
+                           type="number"
+                           min="0"
+                           step="any"
+                           class="form-control"
+                           placeholder="Nhập số tiền giảm tối đa" />
+
+                    <div class="form-text">
+                        Chỉ áp dụng khi chọn giảm theo phần trăm. Nhập 0 nếu không giới hạn.
+                    </div>
+                </div>
+
+                <!-- Điều kiện sử dụng -->
+                <div class="form-section-title mt-4">
+                    02. Điều kiện sử dụng
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="MinOrderAmount" class="form-label">
+                            Giá trị đơn hàng tối thiểu
+                        </label>
+
+                        <input asp-for="MinOrderAmount"
+                               type="number"
+                               min="0"
+                               step="any"
+                               class="form-control"
+                               placeholder="Ví dụ: 200000" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UsageLimit" class="form-label">
+                            Tổng lượt sử dụng
+                        </label>
+
+                        <input asp-for="UsageLimit"
+                               type="number"
+                               min="1"
+                               class="form-control"
+                               placeholder="Ví dụ: 100" />
+                    </div>
+                </div>
+
+                <!-- Thời hạn -->
+                <div class="form-section-title mt-4">
+                    03. Thời hạn áp dụng
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="StartAt" class="form-label">
+                            Thời gian bắt đầu
+                        </label>
+
+                        <input asp-for="StartAt"
+                               type="datetime-local"
+                               class="form-control"
+                               value="@Model.StartAt.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EndAt" class="form-label">
+                            Thời gian kết thúc
+                        </label>
+
+                        <input asp-for="EndAt"
+                               type="datetime-local"
+                               class="form-control"
+                               value="@Model.EndAt.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="form-section-title mt-4">
+                    04. Trạng thái mã giảm giá
+                </div>
+
+                <div class="form-check form-check-custom mb-4">
+                    <input asp-for="IsActive"
+                           class="form-check-input" />
+
+                    <label asp-for="IsActive" class="form-check-label">
+                        Kích hoạt mã giảm giá
+                    </label>
+
+                    <div class="form-text ms-4">
+                        Khi được kích hoạt, mã có thể được sử dụng nếu đáp ứng các điều kiện áp dụng.
+                    </div>
+                </div>
+
+                <!-- Nút thao tác -->
+                <div class="d-flex justify-content-end gap-2 flex-wrap form-actions">
+                    <a asp-action="Index" class="btn btn-back">
+                        Quay lại danh sách
+                    </a>
+
+                    <button type="submit" class="btn btn-save">
+                        ✓ Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

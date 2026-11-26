@@ -1,9 +1,520 @@
 @model IEnumerable<TechMarket.Models.DiscountCode>
-@{ ViewData["Title"] = "Quản lý mã giảm giá"; }
-<div class="container py-4">
- <div class="d-flex justify-content-between align-items-center mb-4"><div><h2>Quản lý mã giảm giá</h2><p class="text-muted">Tạo và theo dõi voucher toàn hệ thống.</p></div><a asp-action="Create" class="btn btn-primary">+ Tạo mã mới</a></div>
- @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
- <div class="table-responsive bg-white rounded shadow-sm"><table class="table table-hover align-middle mb-0"><thead><tr><th>Mã</th><th>Loại</th><th>Giá trị</th><th>Đơn tối thiểu</th><th>Lượt dùng</th><th>Thời hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>
- @foreach (var x in Model) { <tr><td class="fw-bold">@x.Code</td><td>@(x.DiscountType == "PERCENT" ? "Phần trăm" : "Số tiền")</td><td>@(x.DiscountType == "PERCENT" ? x.DiscountValue + "%" : x.DiscountValue.ToString("N0") + "đ")</td><td>@x.MinOrderAmount.ToString("N0")đ</td><td>@x.UsedCount / @x.UsageLimit</td><td>@x.StartAt.ToString("dd/MM/yyyy") – @x.EndAt.ToString("dd/MM/yyyy")</td><td><span class="badge @(x.IsActive ? "bg-success" : "bg-secondary")">@(x.IsActive ? "Hoạt động" : "Tạm khóa")</span></td><td class="text-nowrap"><a asp-action="Edit" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Sửa</a><form asp-action="Toggle" method="post" class="d-inline">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@x.Id"/><button class="btn btn-sm btn-outline-secondary">@(x.IsActive ? "Khóa" : "Mở")</button></form></td></tr> }
- </tbody></table></div>
+
+@{
+    ViewData["Title"] = "Quản lý mã giảm giá";
+}
+
+<style>
+    .voucher-page {
+        min-height: 85vh;
+        padding: 40px 24px 60px;
+        background: #F7F8F3;
+    }
+
+    .voucher-container {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .voucher-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .voucher-heading {
+        flex: 1 1 400px;
+        min-width: 0;
+    }
+
+        .voucher-heading h2 {
+            color: #263D32;
+            font-size: 28px;
+            font-weight: 750;
+            margin: 0 0 10px;
+        }
+
+        .voucher-heading p {
+            color: #718078;
+            font-size: 15px;
+            margin: 0;
+        }
+
+    .voucher-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        flex: 0 0 auto;
+    }
+
+    .voucher-btn-admin,
+    .voucher-btn-create {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 20px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 650;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: .2s ease;
+    }
+
+    .voucher-btn-admin {
+        color: #315D43;
+        background: #EDF3ED;
+        border: 1px solid #DCE8DC;
+    }
+
+        .voucher-btn-admin:hover {
+            color: #244A34;
+            background: #DCEBDD;
+        }
+
+    .voucher-btn-create {
+        color: #fff;
+        background: #315D43;
+        border: 1px solid #315D43;
+    }
+
+        .voucher-btn-create:hover {
+            color: #fff;
+            background: #244A34;
+            border-color: #244A34;
+        }
+
+    /* Thông báo */
+    .voucher-alert {
+        padding: 14px 18px;
+        margin-bottom: 22px;
+        color: #287044;
+        background: #E5F3E8;
+        border: 1px solid #CDE6D2;
+        border-radius: 10px;
+    }
+
+    /* Bảng */
+    .voucher-card {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #E3EAE2;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 8px 28px rgba(35, 58, 43, 0.06);
+    }
+
+    .voucher-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .voucher-table {
+        width: 100%;
+        min-width: 1050px;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+    }
+
+        .voucher-table thead th {
+            padding: 17px 12px;
+            color: #365A42;
+            background: #EDF3ED;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #DCE6DC;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .voucher-table tbody td {
+            padding: 18px 12px;
+            color: #46564B;
+            background: #fff;
+            border-bottom: 1px solid #EEF1EC;
+            font-size: 14px;
+            text-align: center;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+
+        .voucher-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .voucher-table tbody tr:hover td {
+            background: #F8FBF7;
+        }
+
+        .voucher-table .col-code {
+            width: 18%;
+            text-align: left;
+            padding-left: 22px;
+        }
+
+        .voucher-table .col-type {
+            width: 12%;
+        }
+
+        .voucher-table .col-value {
+            width: 10%;
+        }
+
+        .voucher-table .col-min {
+            width: 12%;
+        }
+
+        .voucher-table .col-usage {
+            width: 12%;
+        }
+
+        .voucher-table .col-date {
+            width: 14%;
+        }
+
+        .voucher-table .col-status {
+            width: 12%;
+        }
+
+        .voucher-table .col-action {
+            width: 10%;
+        }
+
+    .voucher-code {
+        color: #315D43;
+        font-weight: 750;
+        letter-spacing: .3px;
+    }
+
+    .voucher-value {
+        color: #315D43;
+        font-weight: 650;
+    }
+
+    .voucher-date {
+        line-height: 1.6;
+    }
+
+        .voucher-date small {
+            color: #829087;
+            font-size: 12px;
+        }
+
+    /* Trạng thái */
+    .voucher-status {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .voucher-status-active {
+        color: #287044;
+        background: #E5F3E8;
+    }
+
+    .voucher-status-disabled {
+        color: #68736B;
+        background: #ECEFED;
+    }
+
+    /* Nút thao tác */
+    .voucher-row-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .voucher-btn-edit,
+    .voucher-btn-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        min-height: 34px;
+        padding: 5px 11px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .voucher-btn-edit {
+        color: #315D43;
+        background: #fff;
+        border: 1px solid #B8CEBB;
+    }
+
+        .voucher-btn-edit:hover {
+            color: #244A34;
+            background: #EDF3ED;
+        }
+
+    .voucher-btn-toggle {
+        color: #68736B;
+        background: #fff;
+        border: 1px solid #D5DDD6;
+    }
+
+        .voucher-btn-toggle:hover {
+            color: #34483B;
+            background: #F0F3F0;
+        }
+
+    /* Khi chưa có dữ liệu */
+    .voucher-empty {
+        padding: 60px 20px;
+        text-align: center;
+        color: #829087;
+    }
+
+    .voucher-empty-icon {
+        margin-bottom: 14px;
+        font-size: 42px;
+    }
+
+    .voucher-empty h5 {
+        color: #46564B;
+        font-weight: 700;
+    }
+
+    .voucher-empty p {
+        margin-bottom: 22px;
+    }
+
+    @@media (max-width: 768px) {
+        .voucher-page {
+            padding: 28px 14px 40px;
+        }
+
+        .voucher-header {
+            align-items: flex-start;
+        }
+
+        .voucher-heading {
+            flex-basis: 100%;
+        }
+
+            .voucher-heading h2 {
+                font-size: 23px;
+            }
+
+        .voucher-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+            .voucher-actions a {
+                flex: 1;
+            }
+    }
+
+    @@media (max-width: 480px) {
+        .voucher-actions {
+            flex-direction: column;
+        }
+
+            .voucher-actions a {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="voucher-page">
+    <div class="voucher-container">
+
+        <!-- Tiêu đề và nút chức năng -->
+        <div class="voucher-header">
+
+            <div class="voucher-heading">
+                <h2>🎟️ Quản lý mã giảm giá</h2>
+                <p>Tạo và theo dõi các chương trình ưu đãi toàn hệ thống.</p>
+            </div>
+
+            <div class="voucher-actions">
+                <a asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="voucher-btn-admin">
+                    ← Trang quản trị
+                </a>
+
+                <a asp-action="Create"
+                   class="voucher-btn-create">
+                    + Tạo mã mới
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Thông báo -->
+        @if (TempData["Success"] != null)
+
+        {
+            <div class="voucher-alert">
+                <strong>✓ Thành công!</strong>
+                @TempData["Success"]
+            </div>
+        }
+
+        <!-- Danh sách mã giảm giá -->
+        <div class="voucher-card">
+            <div class="voucher-table-wrapper">
+
+                <table class="voucher-table">
+                    <thead>
+                        <tr>
+                            <th class="col-code">Mã giảm giá</th>
+                            <th class="col-type">Loại giảm</th>
+                            <th class="col-value">Giá trị</th>
+                            <th class="col-min">Đơn tối thiểu</th>
+                            <th class="col-usage">Lượt sử dụng</th>
+                            <th class="col-date">Thời hạn</th>
+                            <th class="col-status">Trạng thái</th>
+                            <th class="col-action">Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && Model.Any())
+
+                        {
+                            @foreach (var x in Model)
+
+                            {
+                                <tr>
+                                    <td class="col-code">
+                                        <span class="voucher-code">
+                                            @x.Code
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @(x.DiscountType == "PERCENT"
+                                            ? "Phần trăm"
+                                            : "Số tiền")
+                                    </td>
+
+                                    <td class="voucher-value">
+                                        @(x.DiscountType == "PERCENT"
+                                            ? x.DiscountValue + "%"
+                                            : x.DiscountValue.ToString("N0") + "đ")
+                                    </td>
+
+                                    <td>
+                                        @x.MinOrderAmount.ToString("N0")đ
+                                    </td>
+
+                                    <td>
+                                        <strong>@x.UsedCount</strong>
+                                        <span class="text-muted">
+                                            / @x.UsageLimit
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="voucher-date">
+                                            @x.StartAt.ToString("dd/MM/yyyy")
+                                            <br />
+                                            <small>
+                                                đến @x.EndAt.ToString("dd/MM/yyyy")
+                                            </small>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (x.IsActive)
+
+                                        {
+                                            <span class="voucher-status voucher-status-active">
+                                                ● Hoạt động
+                                            </span>
+                                        }
+
+                                        else
+
+                                        {
+                                            <span class="voucher-status voucher-status-disabled">
+                                                ● Tạm khóa
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="voucher-row-actions">
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@x.Id"
+                                               class="voucher-btn-edit">
+                                                Sửa
+                                            </a>
+
+                                            <form asp-action="Toggle"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@x.Id" />
+
+                                                <button type="submit"
+                                                        class="voucher-btn-toggle">
+                                                    @(x.IsActive ? "Khóa" : "Mở")
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+
+                        else
+
+                        {
+                            <tr>
+                                <td colspan="8">
+                                    <div class="voucher-empty">
+                                        <div class="voucher-empty-icon">🎟️</div>
+
+                                        <h5>Chưa có mã giảm giá</h5>
+
+                                        <p>
+                                            Hãy tạo mã giảm giá đầu tiên cho khách hàng.
+                                        </p>
+
+                                        <a asp-action="Create"
+                                           class="voucher-btn-create">
+                                            + Tạo mã mới
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
 </div>
